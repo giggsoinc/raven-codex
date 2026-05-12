@@ -1,0 +1,8 @@
+.raven/.env
+.raven/audit/
+.DS_Store
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+node_modules/

@@ -1,0 +1,11 @@
+{
+  "name": "raven-codex",
+  "description": "Enterprise AI coding discipline engine for OpenAI Codex. CVE scanning, secret detection, PR gate enforcement, encrypted audit logs. Part of the Raven platform.",
+  "version": "2.8.0",
+  "author": {
+    "name": "Giggso Inc",
+    "url": "https://github.com/giggsoinc"
+  },
+  "homepage": "https://github.com/giggsoinc/raven-codex",
+  "keywords": ["security", "enterprise", "governance", "cve", "secrets", "audit", "codex", "openai"]
+}
