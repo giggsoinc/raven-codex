@@ -8,6 +8,11 @@ echo "Installing Raven-Codex..."
 git clone https://github.com/giggsoinc/raven-codex.git "$RAVEN_DIR"
 
 chmod +x "$RAVEN_DIR/raven-codex-setup.sh"
+chmod +x "$RAVEN_DIR/scripts/"*.py 2>/dev/null || true
+chmod +x "$RAVEN_DIR/mcp/server.py" 2>/dev/null || true
+
+echo "Installing Python dependencies..."
+pip3 install -q openai requests packaging 2>/dev/null || true
 
 # Add raven-codex-setup alias to shell profile
 SHELL_PROFILE="$HOME/.zshrc"
