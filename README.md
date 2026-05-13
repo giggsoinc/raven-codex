@@ -8,6 +8,8 @@ This repo has been consolidated into the [giggsoinc/raven](https://github.com/gi
 
 **New location:** [github.com/giggsoinc/raven/tree/main/codex](https://github.com/giggsoinc/raven/tree/main/codex)
 
+**How to use:** [HOW-TO-USE.md](https://github.com/giggsoinc/raven/blob/main/codex/HOW-TO-USE.md)
+
 **Install:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.sh | bash
