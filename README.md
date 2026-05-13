@@ -1,10 +1,14 @@
+<p align="center">
+  <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
+</p>
+
 # Raven-Codex
 
-> Enterprise AI coding discipline engine — OpenAI Codex implementation.
+> OpenAI Codex implementation of the Raven AI coding discipline engine.
 > Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
 > Built by [Giggso Inc](https://github.com/giggsoinc).
 
-*Wit beyond measure — for your codebase. On any AI agent.*
+*Guardrails before you ship.*
 
 ---
 
