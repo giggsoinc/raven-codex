@@ -17,7 +17,7 @@
   "keywords": ["security", "enterprise", "governance", "cve", "secrets", "audit", "compliance", "specialists", "guards"],
   "capabilities": ["cve-scan", "secret-detection", "audit-log", "pr-gate", "manifest-validation"],
   "brandColor": "#1a1a2e",
-  "defaultPrompt": "Run raven_status to confirm Raven is active on this project.",
+  "defaultPrompt": "Start every session with /andie — Andie runs pre-flight, captures context, recommends the right framework, and routes to the correct specialist. Never go directly to a specialist skill.",
   "privacy": "https://github.com/giggsoinc/raven-codex/blob/main/PRIVACY.md",
   "skills": [
     "./skills/agent-chaining/SKILL.md",
