@@ -2,7 +2,7 @@
 
 AI coding discipline for OpenAI Codex, GitHub Copilot, and Claude Code.
 
-CVE scanning · secret detection · PR gates · audit logs · 49 specialist skills · 10 guard agents.
+CVE scanning · secret detection · PR gates · audit logs · 23 specialist skills · 10 guard agents.
 
 ---
 
@@ -26,7 +26,7 @@ Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard,
 
 | Component | Count | What it does |
 |---|---|---|
-| Specialist skills | 49 | DB · cloud · security · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · agent chaining · log management and more |
+| Specialist skills | 23 | DB · cloud · security · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · agent chaining · log management and more |
 | Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, missing architecture |
 | Slash commands | 10 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` and more |
 | Engine scripts | 5 | cve-check · secret-scan · audit-log · emit-violation · db-guard |
