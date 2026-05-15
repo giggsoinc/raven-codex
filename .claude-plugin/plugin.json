@@ -1,11 +1,18 @@
 {
   "name": "raven-codex",
-  "description": "Enterprise AI coding discipline engine for OpenAI Codex. CVE scanning, secret detection, PR gate enforcement, encrypted audit logs. Part of the Raven platform.",
-  "version": "2.8.0",
+  "description": "Raven Discipline Engine for OpenAI Codex. Guards, specialists, dynamic skill generation, and session-persistent learning.",
+  "version": "2.9.1",
   "author": {
-    "name": "Giggso Inc",
-    "url": "https://github.com/giggsoinc"
+    "name": "Giggso / AntiGravity Projects",
+    "email": "giggso.ravi@gmail.com",
+    "url": "https://github.com/giggsoinc/raven-codex"
   },
+  "license": "MIT",
   "homepage": "https://github.com/giggsoinc/raven-codex",
-  "keywords": ["security", "enterprise", "governance", "cve", "secrets", "audit", "codex", "openai"]
+  "categories": ["security", "enterprise", "governance", "discipline", "specialists"],
+  "tags": ["codex", "cve", "secrets", "audit", "enterprise", "compliance", "specialists", "guards"],
+  "install": {
+    "type": "bash",
+    "command": "bash raven-codex-setup.sh"
+  }
 }
