@@ -1,3 +1,8 @@
+---
+name: raven-audit
+description: View the encrypted audit log for this project — every Raven action recorded.
+---
+
 # raven_audit
 
 View the encrypted audit log for this project — every Raven action recorded.

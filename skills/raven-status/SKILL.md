@@ -1,3 +1,8 @@
+---
+name: raven-status
+description: Check that Raven is active and the project manifest is valid.
+---
+
 # raven_status
 
 Check that Raven is active and the project manifest is valid.

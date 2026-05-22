@@ -2,7 +2,7 @@
 
 AI coding discipline for OpenAI Codex, GitHub Copilot, and Claude Code.
 
-CVE scanning · secret detection · PR gates · audit logs · 23 specialist skills · 10 guard agents.
+CVE scanning · secret detection · PR gates · audit logs · 54 specialist skills · 10 guard agents · 13 engine scripts.
 
 ---
 
@@ -18,7 +18,7 @@ claude plugin install giggsoinc/raven-codex
 bash <(curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-codex/main/install.sh)
 ```
 
-Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard, audit log), and git pre-commit gate.
+Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard, audit log, schema-guard, session-start), and git pre-commit gate.
 
 ---
 
@@ -26,11 +26,11 @@ Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard,
 
 | Component | Count | What it does |
 |---|---|---|
-| Specialist skills | 23 | DB · cloud · security · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · agent chaining · log management and more |
+| Specialist skills | 54 | Andie v5.2 · Andie Jr · db-router · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · agent chaining · log management and more |
 | Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, missing architecture |
-| Slash commands | 10 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` and more |
-| Engine scripts | 5 | cve-check · secret-scan · audit-log · emit-violation · db-guard |
-| MCP server | 1 | `raven_status` · `raven_debug` · `raven_cve_check` · `raven_violation` |
+| Slash commands | 14 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` `/raven-approve` `/raven-scaffold` `/raven-search` `/raven-sync` and more |
+| Engine scripts | 13 | cve-check · secret-scan · audit-log · emit-violation · db-guard · schema-guard · cve-prompt-guard · pr-gate · server · obsidian-log · session-start and more |
+| MCP server | 1 | `raven_status` · `raven_debug` · `raven_cve_check` · `raven_violation` · `raven_sync_libs` |
 
 ---
 
@@ -39,13 +39,12 @@ Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard,
 `raven-codex` is the **Codex / Copilot / multi-platform** variant.
 `giggsoinc/raven` is the **Claude Code native** variant.
 
-Both share the same skill set and guard agents. `raven-codex` is maintained in sync with the `codex/` subdirectory of the [raven monorepo](https://github.com/giggsoinc/raven/tree/main/codex).
+Both share the same skill set and guard agents. Skills, agents, and engine scripts are kept in sync with [giggsoinc/raven](https://github.com/giggsoinc/raven).
 
 ---
 
 ## Docs
 
-- [How to use](https://github.com/giggsoinc/raven/blob/main/codex/HOW-TO-USE.md)
 - [Architecture](https://github.com/giggsoinc/raven)
 - [Issues](https://github.com/giggsoinc/raven-codex/issues)
 
