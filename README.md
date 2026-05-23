@@ -34,6 +34,23 @@ Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard,
 
 ---
 
+## Performance
+
+Token cost is a first-class design constraint. Skills load once on invocation and remain in the context window — smaller skills mean every subsequent message is cheaper.
+
+| Optimisation | Saving |
+|---|---|
+| Andie v6.1 (was v5.2, −69% size) | −6,852 tok per session |
+| db-router pure routing table | −2,560 tok per session |
+| ui-router trimmed | −1,564 tok per session |
+| agent-chaining trimmed | −1,686 tok per session |
+| `raven-skill-reminder` first-message-only | −61 tok × every message after msg 1 |
+| Obsidian → session-start continuity | ~80 tok of prior context, no cold start |
+
+**~57% reduction in skill token footprint vs v2.9.1. In a 20-message session: ~53% fewer context-tokens carried.**
+
+---
+
 ## Relationship to giggsoinc/raven
 
 `raven-codex` is the **Codex / Copilot / multi-platform** variant.
