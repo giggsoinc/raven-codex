@@ -1,7 +1,7 @@
 ---
 name: raven-review
 description: Use when reviewing code, PRs, or any file changes. Extends
-  Claude's built-in review with Raven style and stack compliance checks.
+  Built-in review with Raven style and stack compliance checks.
   Checks manifest, imports, style rules, and architecture alignment.
 allowed-tools: Read Bash Grep
 ---

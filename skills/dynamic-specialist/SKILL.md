@@ -36,7 +36,7 @@ Step 9 → check promotion          flag if count >= 3
 
 Before doing anything, run:
 ```bash
-python3 .claude/scripts/skill-search.py --query "[detected platform]"
+python3 .codex/scripts/skill-search.py --query "[detected platform]"
 ```
 
 If a curated skill is found → hand off immediately. Do not proceed with dynamic generation.
@@ -139,15 +139,15 @@ Profile includes:
 Platform → Expert examples:
 | Platform | Expert |
 |---|---|
-| Flutter / Dart | Eric Seidel (Flutter co-founder) |
-| SvelteKit | Rich Harris (Svelte creator) |
-| Bun | Jarred Sumner (Bun creator) |
-| LangChain | Harrison Chase (LangChain co-founder) |
-| Supabase | Paul Copplestone (Supabase CEO) |
-| Remix | Ryan Florence (Remix co-founder) |
-| Astro | Fred K. Schott (Astro creator) |
-| Prisma | Johannes Schickling (Prisma founder) |
-| Tauri | Daniel Thompson-Yvetot (Tauri creator) |
+| Flutter / Dart | Eric (Flutter co-founder) |
+| SvelteKit | Rich (Svelte creator) |
+| Bun | Jarred (Bun creator) |
+| LangChain | Harrison (LangChain co-founder) |
+| Supabase | Paul (Supabase CEO) |
+| Remix | Ryan (Remix co-founder) |
+| Astro | Fred (Astro creator) |
+| Prisma | Johannes (Prisma founder) |
+| Tauri | Daniel (Tauri creator) |
 | Unknown | State best match + confidence level |
 
 ---

@@ -54,7 +54,7 @@ Syncs all registered Raven projects to the current engine version.
    
      ⚠️  Stale — needs update (2)
         fin-processor             v2.7.0 → v2.8.0
-        Dev-Claude-Arch           unknown → v2.8.0
+        Dev-Codex-Arch           unknown → v2.8.0
    
      ❌ Path not found (0)
    ```
@@ -70,11 +70,11 @@ Syncs all registered Raven projects to the current engine version.
 
 | Component | Destination |
 |---|---|
-| Engine scripts (4 py files) | `.claude/scripts/` |
-| MCP server (`server.py`) | `.claude/mcp/` |
-| Andie skill | `.claude/skills/andie/` |
-| Andie Jr skill | `.claude/skills/andie-jr/` |
-| Tools landscape | `.claude/skills/tools-landscape/` |
+| Engine scripts (4 py files) | `.codex/scripts/` |
+| MCP server (`server.py`) | `.codex/mcp/` |
+| Andie skill | `.codex/skills/andie/` |
+| Andie Jr skill | `.codex/skills/andie-jr/` |
+| Tools landscape | `.codex/skills/tools-landscape/` |
 | Version stamp | `.raven/raven_version` |
 | Git commit | Auto-committed |
 | Git push | Auto-pushed (if remote exists) |
@@ -104,7 +104,7 @@ Projects with no remote → committed locally, no push.
 # 1. Bump version
 echo "2.9.0" > ~/AntiGravity_Projects/raven-core/VERSION
 
-# 2. Promote updated skills/scripts into ~/.claude/skills and raven-core mirrors
+# 2. Promote updated skills/scripts into ~/.codex/skills and raven-core mirrors
 #    (bundle.sh has been removed; update source files directly)
 
 # 3. Commit and push raven-core and platform repos as needed

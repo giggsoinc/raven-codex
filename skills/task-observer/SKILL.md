@@ -43,7 +43,7 @@ Log silently whenever any of these occur:
 
 | Event | What to log | Where |
 |---|---|---|
-| User corrects Claude's output | The wrong approach + the correct one | security_log.md |
+| User corrects the AI output | The wrong approach + the correct one | security_log.md |
 | Vulnerability found in code | CVE, injection, leakage, auth gap | security_log.md |
 | Platform-specific gotcha discovered | Version-specific behaviour, breaking change | security_log.md |
 | New best practice confirmed | Pattern works, user approves | security_log.md |

@@ -1,7 +1,7 @@
 ---
 name: raven-plan
 description: Use when planning any new feature, module, service, or refactor.
-  Extends Claude's Plan agent with Giggso architecture-first rules. Forces
+  Extends the Plan agent with Giggso architecture-first rules. Forces
   dependency mapping, file structure, and manifest compliance before any code.
 allowed-tools: Read Bash
 ---

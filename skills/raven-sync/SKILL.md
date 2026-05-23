@@ -12,7 +12,7 @@ allowed-tools: Bash
 Syncs all libraries from requirements files into manifest.json.
 
 ## Steps
-1. Run: `python3 .claude/scripts/sync-libraries.py`
+1. Run: `python3 .codex/scripts/sync-libraries.py`
 2. Show summary: approved / blocked / skipped
 3. If blocked libs found — report to developer with reason
 4. If all clean — confirm manifest.json updated

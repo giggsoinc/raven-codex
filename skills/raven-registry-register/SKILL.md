@@ -38,7 +38,7 @@ Registers a project in the Raven registry (`~/.raven/registry.json`), enabling
 
 2. **Determine target path**
    - If `--path` was provided → use that path
-   - Otherwise → use the project's working directory (where Claude is operating)
+   - Otherwise → use the project's working directory (where the agent is operating)
 
 3. **Run registration**:
    ```bash
@@ -75,7 +75,7 @@ Name                 Installed    Status                    Remote
 ────────────────────────────────────────────────────────────────────────────
 lockey               2.8.0        ✅ current                https://github.com/...
 fin-processor        unknown      ⚠️  stale (unknown→2.8.0)  local only
-Dev-Claude-Arch      2.7.0        ⚠️  stale (2.7.0→2.8.0)   local only
+Dev-Codex-Arch      2.7.0        ⚠️  stale (2.7.0→2.8.0)   local only
 ```
 
 After listing, if stale projects found → suggest: "Run `/raven-registry-sync --all` to update them."
@@ -107,9 +107,9 @@ Confirm? [y/N]:
 | `path` | Absolute path |
 | `remote` | `git remote get-url origin` |
 | `installed_version` | `.raven/raven_version` (or "unknown") |
-| `components.scripts` | `.claude/scripts/` exists |
-| `components.mcp` | `.claude/mcp/` exists |
-| `components.skills` | Skill directories under `.claude/skills/` |
+| `components.scripts` | `.codex/scripts/` exists |
+| `components.mcp` | `.codex/mcp/` exists |
+| `components.skills` | Skill directories under `.codex/skills/` |
 
 ---
 
