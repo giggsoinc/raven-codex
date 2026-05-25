@@ -1,12 +1,12 @@
 ---
 name: raven-init
-description: Initialize Raven for a new project. Generates manifest.json interactively, validates against schema, commits with audit trail.
+description: Initialize Raven for a project. Auto-discovers stack on brownfield (existing code), asks interactively on greenfield (empty). Validates against schema, commits with audit trail.
 allowed-tools: Read, Write, Edit, Bash
 ---
 
 # /raven init
 
-Initializes Raven for a new project. Asks questions one at a time, generates manifest.json, validates, and commits.
+Initializes Raven for a project. On brownfield (existing code), auto-discovers stack and asks for confirmation. On greenfield (empty folder), asks questions one at a time. Generates manifest.json, validates, and commits.
 
 ---
 
@@ -14,10 +14,63 @@ Initializes Raven for a new project. Asks questions one at a time, generates man
 
 1. Is `.raven/manifest.json` already present?
    - **YES** → Load it. Trust it. Proceed with the declared stack. Do not reinitialize. Do not modify unless user explicitly requests it.
-   - **NO** → Greenfield. Continue below.
+   - **NO** → Continue to step 2.
 
 2. Is Git initialized?
    - **NO** → Warn: "Git not initialized. Run `git init` first. Audit trail requires Git."
+
+3. **Detect project type: Greenfield vs Brownfield**
+   - Count source files in the directory (exclude hidden dirs, node_modules, venv, .venv, __pycache__)
+   - **0 source files** → Greenfield. Run interactive creation (ask all questions).
+   - **1+ source files** → Brownfield. Run auto-discovery below.
+
+---
+
+## Brownfield Auto-Discovery
+
+When existing code is detected, auto-discover the stack from filesystem signals.
+Only ask the user to **confirm** — never ask them to re-state what the code already tells you.
+
+### Discovery scan
+
+Run these checks:
+
+| Signal | Files checked | Detected value |
+|--------|--------------|----------------|
+| Project name | Directory name | Use folder name (sanitized to `^[a-zA-Z0-9_-]+$`) |
+| Work type | `.tf`/`.hcl` → infra; `.py`/`.ts`/`.go`/`.rs`/`.java` → code; both → mixed | Auto-set |
+| Language | `*.py` → python (check version via `python3 --version` or pyproject.toml); `*.ts`/`tsconfig.json` → typescript; `*.go`/`go.mod` → go; `*.rs`/`Cargo.toml` → rust; `*.java`/`pom.xml` → java | Multi-select all found |
+| Frontend | `next.config.*` → nextjs; `nuxt.config.*` → nuxtjs; `vite.config.*` + react → reactjs; `vite.config.*` + vue → vuejs; none → none | Auto-set |
+| Cloud | `*.tf` with `provider "aws"` → aws; `provider "google"` → gcp; `provider "azurerm"` → azure; `provider "oci"` → oci; Dockerfile only → on-prem | Auto-set or ask if ambiguous |
+| Database | `docker-compose.yml` service images; connection strings in config; ORM configs (alembic, prisma, TypeORM) | Multi-select all found |
+| Infra tools | `Dockerfile` → docker-compose; `*.tf` → terraform; `helm/`/`Chart.yaml` → helm; `k8s/`/`*deployment.yaml` → kubernetes; `ansible/`/`playbook.yml` → ansible | Multi-select all found |
+
+### Confidence output
+
+Present findings as a confirmation, not questions:
+
+```
+🔍 Brownfield detected — auto-discovered stack:
+
+  Project:    {name}
+  Type:       {work_type}
+  Language:   {languages}
+  Frontend:   {framework}
+  Cloud:      {cloud}
+  Database:   {databases}
+  Infra:      {tools}
+
+✅ Accept this? (y/n)
+  - y → proceed with these values
+  - n → switch to interactive mode (ask each question)
+```
+
+If a field cannot be determined with confidence → mark as `⚠️ unknown` and ask only that one question.
+
+### Remaining questions (always asked even in brownfield)
+
+- **Email** (Q8) — cannot be discovered from code
+- **Guard enabled** (Q9) — policy decision, not a code signal
 
 ---
 
@@ -58,12 +111,11 @@ Show confirmation, then proceed to project questions.
 
 ---
 
-## Greenfield Rules
+## Greenfield Rules (0 source files only)
 
 ```
-NEVER auto-detect or pre-populate from: venv, requirements.txt, pyproject.toml,
-package.json, .env, or any other files on disk.
-Every answer comes from the user. No exceptions.
+When NO source files exist in the project directory, every answer comes from the user.
+The manifest is what the user declares for the project they intend to build.
 
 EXCEPTION — project name only:
   Pre-populate from basename(cwd). Show as default. User confirms or overrides.

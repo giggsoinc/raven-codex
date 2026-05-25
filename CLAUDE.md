@@ -58,7 +58,8 @@ These run silently behind every action. Do not disable them.
 ## Manifest Rules
 
 - Manifest exists → load it, trust it, proceed. Do not reinitialize.
-- No manifest → run `/raven-init`. Ask the user everything. Never auto-detect from venv, requirements.txt, or project files.
+- No manifest + existing code (brownfield) → run `/raven-init`. Auto-discover stack from filesystem signals. Ask user to confirm.
+- No manifest + empty folder (greenfield) → run `/raven-init`. Ask the user everything interactively.
 
 ---
 
