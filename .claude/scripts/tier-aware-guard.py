@@ -95,7 +95,7 @@ def get_guard_model(tier: str) -> str:
         Model identifier (Raven-Codex: haiku or gpt-5.4-mini)
     """
     model_map = {
-        "SIMPLE": "haiku",           # Fast, cheap
+        "SIMPLE": "gpt-5.4-mini",    # Fast, cheap
         "MEDIUM": "gpt-5.4-mini",    # Balanced, capable
         "COMPLEX": "gpt-5.4-mini",   # Full power
     }
