@@ -26,7 +26,7 @@ Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard,
 
 | Component | Count | What it does |
 |---|---|---|
-| Specialist skills | 51 | Andie v6.1 · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
+| Specialist skills | 51 | Andie v6.2 · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
 | Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, missing architecture |
 | Slash commands | 14 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` `/raven-approve` `/raven-scaffold` `/raven-search` `/raven-sync` and more |
 | Engine scripts | 13 | cve-check · secret-scan · audit-log · emit-violation · db-guard · schema-guard · cve-prompt-guard · pr-gate · server · obsidian-log · session-start and more |
@@ -40,7 +40,7 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 | Optimisation | Saving |
 |---|---|
-| Andie v6.1 (was v5.2, −69% size) | −6,852 tok per session |
+| Andie v6.2 (was v5.2, −69% size) | −6,852 tok per session |
 | db-router pure routing table | −2,560 tok per session |
 | ui-router trimmed | −1,564 tok per session |
 | agent-chaining trimmed | −1,686 tok per session |
