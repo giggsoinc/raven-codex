@@ -40,7 +40,7 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 | Optimisation | Saving |
 |---|---|
-| Andie v6.2 (was v5.2, −69% size) | −6,852 tok per session |
+| Andie v6.2 (−69% size, 200-word cap, Feynman recap) | −6,852 tok per session |
 | db-router pure routing table | −2,560 tok per session |
 | ui-router trimmed | −1,564 tok per session |
 | agent-chaining trimmed | −1,686 tok per session |
