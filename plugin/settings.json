@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/session-start.py\"",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/session-start.py\"",
             "timeout": 10
           }
         ]
@@ -18,22 +18,22 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/triage-router.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/triage-router.py\" 2>/dev/null || true",
             "timeout": 3
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/architect-router.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/architect-router.py\" 2>/dev/null || true",
             "timeout": 3
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/model-router.py\" --prompt \"$PROMPT\" --write-json 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/model-router.py\" --prompt \"$PROMPT\" --write-json 2>/dev/null || true",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/cve-prompt-guard.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/cve-prompt-guard.py\" 2>/dev/null || true",
             "async": true
           }
         ]
@@ -45,12 +45,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/secret-scan.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/secret-scan.py\" 2>/dev/null || true",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/db-guard.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/db-guard.py\" 2>/dev/null || true",
             "async": true
           }
         ]
@@ -62,12 +62,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/token-guard.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/token-guard.py\" 2>/dev/null || true",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/obsidian-log.py\" 2>/dev/null || true",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-.}/.claude/scripts/obsidian-log.py\" 2>/dev/null || true",
             "async": true
           }
         ]

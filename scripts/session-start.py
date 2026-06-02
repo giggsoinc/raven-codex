@@ -4,7 +4,7 @@ Raven — SessionStart Hook
 Auto-discovers models, classifies project as brownfield or greenfield,
 and injects context into the session before the user types anything.
 
-Outputs JSON with additionalContext — consumed by Claude Code SessionStart hook.
+Outputs JSON with additionalContext — consumed by Codex SessionStart hook.
 Never prompts interactively. Never reads .env or credential files.
 """
 
@@ -418,7 +418,7 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
     # Brownfield advisory + domain skill trigger
     cwd = Path(".")
     has_manifest  = (cwd / ".raven" / "manifest.json").exists()
-    has_claude_md = (cwd / ".claude" / "CLAUDE.md").exists() or (cwd / "CLAUDE.md").exists()
+    has_claude_md = (cwd / ".claude" / "CODEX.md").exists() or (cwd / "CODEX.md").exists()
 
     # ── MANDATORY GREETING — fires for BOTH greenfield and brownfield ──────────
     # First message after install ALWAYS shows the Welcome greeting before any routing.
@@ -516,7 +516,7 @@ def main():
     # 6. Format context string
     context = format_context(project, all_providers, routing, model_env_written, domain_skill)
 
-    # 6. Build compact system notification (always shown in Claude Code UI)
+    # 6. Build compact system notification (always shown in Codex UI)
     badge_short = "BROWNFIELD" if project["type"] == "brownfield" else "GREENFIELD"
     skill, domain_label = domain_skill
     skill_line = f" · {domain_label} → {skill}" if skill else ""

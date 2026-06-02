@@ -19,9 +19,9 @@ Answer 7 questions. Done. Takes 2 minutes.
 
 ---
 
-## Claude Code Plugin — Any Developer
+## Codex Plugin — Any Developer
 
-Install Raven as a Claude Code MCP plugin. Available globally across all projects.
+Install Raven as a Codex MCP plugin. Available globally across all projects.
 
 ```bash
 # Install plugin (run once, ever)
@@ -32,7 +32,7 @@ cd YourProject
 raven-setup
 ```
 
-**What the plugin exposes in Claude Code:**
+**What the plugin exposes in Codex:**
 - `raven_status` — check manifest, version, mode
 - `raven_cve_check` — CVE scan any library on demand
 - `raven_sync_libs` — sync requirements.txt → manifest
@@ -144,18 +144,18 @@ raven-setup
 # Install Guard
 raven-guard-setup
 
-# Open Claude Code
+# Open Codex
 claude .
 ```
 
 Total time: **under 3 minutes.**
 
-### Zero-click (Claude Code Enterprise)
+### Zero-click (Codex Enterprise)
 
-If your org uses Claude Code Enterprise:
+If your org uses Codex Enterprise:
 
 1. Admin uploads `raven` to the org plugin registry
-2. Every developer gets it automatically on next Claude Code update
+2. Every developer gets it automatically on next Codex update
 3. No install, no curl, no setup
 4. `raven-setup` available as a command everywhere
 

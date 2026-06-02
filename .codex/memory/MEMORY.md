@@ -1,0 +1,1 @@
+- [Governance Gate](governance_gate.md) — Before any command ask: "Raven or lucky?" Default Raven (governance enabled). "Lucky" skips gates.

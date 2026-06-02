@@ -13,7 +13,7 @@ Rule (BOTH must match, NEGATION wins):
   NEGATION                  — symptom markers present (timeout/fail/crash/etc.)
                               → skip; triage-router handles those.
 
-If match → print [ANDIE REQUIRED] to stdout. Claude Code injects as
+If match → print [ANDIE REQUIRED] to stdout. Codex injects as
 additionalContext and the model loads andie before any response.
 
 If no match → silent passthrough. Other routing applies normally.

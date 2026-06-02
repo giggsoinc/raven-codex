@@ -68,7 +68,7 @@ def audit(content):
         ("manifest.secrets","Reads secrets file"),
         (".env","Reads .env"),
         ("id_rsa","Reads SSH key"),
-        ("ignore CLAUDE","Overrides CLAUDE.md"),
+        ("ignore CODEX","Overrides CODEX.md"),
         ("ignore your rules","Overrides rules"),
     ]:
         if pat.lower() in content.lower():
@@ -159,7 +159,7 @@ def main():
 
         install(fn, name, src)
         approve(name, src)
-        print(f"\n{G}Restart Claude Code to load '{name}'.{N}\n")
+        print(f"\n{G}Restart Codex to load '{name}'.{N}\n")
 
 if __name__ == "__main__":
     main()

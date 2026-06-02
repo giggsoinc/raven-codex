@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Raven — MCP Server (platform-agnostic)
-Exposes Raven as an MCP plugin for Claude Code, OpenAI Codex, or any MCP-compatible agent.
+Exposes Raven as an MCP plugin for Codex, OpenAI Codex, or any MCP-compatible agent.
 
-Claude Code:  claude mcp add raven -- python3 ~/.raven/mcp/server.py
+Codex:  claude mcp add raven -- python3 ~/.raven/mcp/server.py
 Codex:        Settings → MCP Servers → python3 ~/.raven-codex/mcp/server.py
 
 Tools exposed:
@@ -157,7 +157,7 @@ def handle(method: str, params: dict) -> dict:
                 icon = "✅" if (cwd/f).exists() else "❌"
                 checks.append(f"{icon} {label}")
             checks.append(f"{'✅' if scripts else '❌'} raven scripts ({scripts or 'not found'})")
-            checks.append(f"{'✅' if (cwd/'CLAUDE.md').exists() else '⚠️ '} CLAUDE.md (Claude Code only)")
+            checks.append(f"{'✅' if (cwd/'CODEX.md').exists() else '⚠️ '} CODEX.md (Codex only)")
             return {"content": [{"type":"text","text": "\n".join(checks)}]}
 
         if name == "raven_violation":

@@ -2,7 +2,7 @@
   "name": "raven-codex",
   "displayName": "Raven — AI Coding Discipline",
   "version": "3.4.0",
-  "description": "AI coding discipline for OpenAI Codex, GitHub Copilot, and Claude Code. 61 specialist skills, 10 guard agents, CVE scanning, secret detection, PR gates, audit logs. Andie v6.3 with mode splitting, 6 Kaizen methods, Guru, capability routing.",
+  "description": "AI coding discipline for OpenAI Codex, GitHub Copilot, and Codex. 61 specialist skills, 10 guard agents, CVE scanning, secret detection, PR gates, audit logs. Andie v6.3 with mode splitting, 6 Kaizen methods, Guru, capability routing.",
   "shortDescription": "AI discipline — 61 specialists, 10 guards, CVE scan, secret detection, audit logs.",
   "author": {
     "name": "Giggso / AntiGravity Projects",

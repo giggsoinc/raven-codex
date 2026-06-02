@@ -1,7 +1,7 @@
 ---
 name: raven-harden
 description: Reviews security_log.md and promotes accumulated observations into
-  permanent rules. Hardens confirmed patterns into CLAUDE.md. Promotes dynamic
+  permanent rules. Hardens confirmed patterns into CODEX.md. Promotes dynamic
   specialist profiles with 3+ uses into curated skills. Classifies findings into
   internal_raven_ops.md or general_security_patterns.md. The weekly learning loop.
 allowed-tools: Read, Write, Edit, Bash, Agent
@@ -52,16 +52,16 @@ Wait for user input before proceeding.
 
 ---
 
-### 2. Harden Observations → CLAUDE.md
+### 2. Harden Observations → CODEX.md
 
 For each approved observation:
 
 **Assess where it belongs:**
-- Rule that should never be broken → add to CLAUDE.md Non-Negotiable Rules
+- Rule that should never be broken → add to CODEX.md Non-Negotiable Rules
 - Platform-specific Giggso pattern → add to docs/knowledge/internal_raven_ops.md
 - General engineering pattern → add to docs/knowledge/general_security_patterns.md
 
-**CLAUDE.md hardening — append to relevant section:**
+**CODEX.md hardening — append to relevant section:**
 ```markdown
 ## Hardened Rules (from observations)
 
@@ -130,7 +130,7 @@ Step 3 → search agent ON DEMAND only
 ```
 Raven Harden — Complete
 ══════════════════════════════════════
-Hardened into CLAUDE.md:   [N] rules
+Hardened into CODEX.md:   [N] rules
 Classified to internal:    [N] patterns
 Classified to general:     [N] patterns
 Promoted to curated:       [platform list]

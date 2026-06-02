@@ -178,9 +178,9 @@ cat .raven/audit/audit.log
 
 ---
 
-## What's Different from Claude Code
+## What's Different from Codex
 
-| | Claude Code | Codex |
+| | Codex | Codex |
 |---|---|---|
 | Enforcement point | Pre-commit (before commit) | PR gate (before merge) |
 | Secret scan | On file save | On PR open |

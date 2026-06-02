@@ -2,7 +2,7 @@
 
 Maintained by the Task-Observer meta-skill. Written silently during sessions.
 Every vulnerability found, correction made, or new pattern learned is logged here.
-Reviewed during `/raven-harden` to promote permanent rules into CLAUDE.md and curated skills.
+Reviewed during `/raven-harden` to promote permanent rules into CODEX.md and curated skills.
 
 **Format:** Issue → Suggested Improvement → Principle
 **Review cadence:** Run `/raven-harden` when log has 5+ new entries or after significant sessions.
@@ -35,7 +35,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CLAUDE.md and cu
 ### [2026-05-15] — Task-Observer / Meta
 
 **Issue:** Task-Observer skill is defined but never actually fires during sessions — log stayed empty through a full week of significant changes.
-**Suggested improvement:** Add explicit invocation in CLAUDE.md boot sequence and/or wire to PostEdit hook so it auto-appends after each session.
+**Suggested improvement:** Add explicit invocation in CODEX.md boot sequence and/or wire to PostEdit hook so it auto-appends after each session.
 **Principle:** A log no one writes to is a false sense of observability. Observer must be active, not aspirational.
 **Status:** open
 
@@ -97,7 +97,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CLAUDE.md and cu
 
 ### [2026-05-14] — Raven plugin / Missing skill frontmatter
 
-**Issue:** `skills/raven-init/SKILL.md` had no YAML frontmatter — migrated from `commands/raven-init.md` which also had none. Plugin validator silently skipped it; Claude Code would not load the skill.
+**Issue:** `skills/raven-init/SKILL.md` had no YAML frontmatter — migrated from `commands/raven-init.md` which also had none. Plugin validator silently skipped it; Codex would not load the skill.
 **Fix:** Added frontmatter block with `name`, `description`, `allowed-tools`.
 **Principle:** Every SKILL.md must open with a valid YAML frontmatter block. The migration script from `commands/` → `skills/*/SKILL.md` must carry frontmatter or generate it.
 **Status:** closed
@@ -106,7 +106,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CLAUDE.md and cu
 
 ### [2026-05-14] — raven-setup.sh / Broken path
 
-**Issue:** `RAVEN_REGISTER` path used `dirname "$SR_REPO_DIR"` which walked up one directory too many — pointed to `SHAY-ROLLS/CLAUDE/` instead of staying in the RAVEN repo.
+**Issue:** `RAVEN_REGISTER` path used `dirname "$SR_REPO_DIR"` which walked up one directory too many — pointed to `SHAY-ROLLS/CODEX/` instead of staying in the RAVEN repo.
 **Fix:** Changed to `"$SR_REPO_DIR/raven-core/registry/raven-register.py"`.
 **Principle:** Path construction from dynamic variables must be tested by echoing the resolved path before use. `dirname` on a directory path removes the last component — use with care when the variable is already a directory.
 **Status:** closed

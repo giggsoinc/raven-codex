@@ -1,6 +1,6 @@
 # Raven-Codex v3.4
 
-AI coding discipline for OpenAI Codex, GitHub Copilot, and Claude Code.
+AI coding discipline for OpenAI Codex, GitHub Copilot, and Codex.
 
 CVE scanning · secret detection · PR gates · audit logs · 61 specialist skills · 10 guard agents · 13 engine scripts.
 
@@ -24,7 +24,7 @@ That's it. No setup script. No 8 questions. Andie infers everything she can and 
 <summary>Prefer terminal install? (advanced)</summary>
 
 ```bash
-# Claude Code direct
+# Codex direct
 claude plugin install giggsoinc/raven-codex
 
 # Or curl-pipe (writes project hooks + engine scripts)
@@ -88,7 +88,7 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 ## Relationship to giggsoinc/raven
 
 `raven-codex` is the **Codex / Copilot / multi-platform** variant.
-`giggsoinc/raven` is the **Claude Code native** variant.
+`giggsoinc/raven` is the **Codex native** variant.
 
 Both share the same skill set and guard agents. Skills, agents, and engine scripts are kept in sync.
 

@@ -9,7 +9,7 @@ Rule (both must match):
   (a) prompt references an EXISTING system/service/component
   (b) prompt contains DEVIATION language (timeout/slow/fail/broken/hang/etc.)
 
-If both → print [ANDIE-JR REQUIRED] to stdout. Claude Code injects it as
+If both → print [ANDIE-JR REQUIRED] to stdout. Codex injects it as
 additionalContext and the model loads andie-jr first.
 
 If not → silent passthrough. Other skills route normally.
@@ -89,7 +89,7 @@ def classify(prompt: str) -> bool:
 
 
 def main():
-    # Claude Code passes the prompt via $PROMPT env or stdin
+    # Codex passes the prompt via $PROMPT env or stdin
     prompt = os.environ.get("PROMPT", "")
     if not prompt:
         try:
@@ -97,7 +97,7 @@ def main():
         except Exception:
             return
     if classify(prompt):
-        # additionalContext injection — Claude Code reads stdout on UserPromptSubmit
+        # additionalContext injection — Codex reads stdout on UserPromptSubmit
         emission = (
             "[ANDIE-JR REQUIRED] This prompt reports a symptom on an existing "
             "system. MANDATORY: invoke `andie-jr` skill BEFORE any diagnosis, "

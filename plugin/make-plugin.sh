@@ -29,7 +29,7 @@ echo "  Version: $VERSION"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# ── plugin.json (Claude Code format) ──
+# ── plugin.json (Codex format) ──
 mkdir -p "$TMP_DIR/.claude-plugin"
 cp "$REPO_DIR/.claude-plugin/plugin.json" "$TMP_DIR/.claude-plugin/plugin.json"
 echo "  ✅ .claude-plugin/plugin.json"

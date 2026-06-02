@@ -70,7 +70,7 @@ If user says **2**: proceed without manifest — apply Raven discipline conversa
 If user says **3**: explain in plain language what Raven will enforce for the detected work type, then ask again.
 
 **Never say "HARD STOP". Never say "run raven-setup". Never say "manifest missing — get it from your architect."**
-Those messages mean nothing to a developer who just opened Claude Code for the first time.
+Those messages mean nothing to a developer who just opened Codex for the first time.
 
 ---
 

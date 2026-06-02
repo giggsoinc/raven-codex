@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven-Codex (Claude Code)
+# CODEX.md — Raven-Codex (Codex)
 
 ## Mandatory First Step
 

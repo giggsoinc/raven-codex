@@ -7,7 +7,7 @@ description: Use to run a full Raven boot diagnostic.
 # /debug (codex doctor)
 
 Run in order:
-1. Check CLAUDE.md exists at project root
+1. Check CODEX.md exists at project root
 2. Check .raven/manifest.json — valid JSON, all required fields
 3. Check .raven/manifest.secrets.json — present (warn if missing)
 4. Check .gitignore — exists at project root (hard stop if missing)

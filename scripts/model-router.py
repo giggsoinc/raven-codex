@@ -319,8 +319,8 @@ def main():
     args = parser.parse_args()
 
     # Method B inference — if called from a hook context, override to overhead
-    # CLAUDE_HOOK_EVENT is set by Claude Code when a hook fires
-    if os.environ.get("CLAUDE_HOOK_EVENT") and args.source == "user_work":
+    # CODEX_HOOK_EVENT is set by Codex when a hook fires
+    if os.environ.get("CODEX_HOOK_EVENT") and args.source == "user_work":
         # Still default to user_work because the user prompt IS user work,
         # even though model-router runs from a hook. The hook FIRES it but
         # the work being classified IS the user's. Leave as user_work.

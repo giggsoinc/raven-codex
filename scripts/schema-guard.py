@@ -10,7 +10,7 @@ On every block:
   - Writes unconditional audit entry to .raven/audit/YYYY-MM-DD.log
   - Fires emit-violation.py async (non-blocking)
 
-Returns JSON to Claude Code to block tool execution.
+Returns JSON to Codex to block tool execution.
 Exit 0 always — blocking is via JSON output, not exit code.
 """
 import sys
@@ -56,7 +56,7 @@ def _emit_guard_block(label: str, command: str) -> None:
             "command": command[:300],
             "action":  "blocked",
             "dev":     os.environ.get("GIT_AUTHOR_EMAIL", os.environ.get("USER", "unknown")),
-            "session": os.environ.get("CLAUDE_SESSION_ID", ""),
+            "session": os.environ.get("CODEX_SESSION_ID", ""),
             "project": os.path.basename(os.getcwd()),
         })
         with open(audit_dir / f"{date_str}.log", "a") as f:

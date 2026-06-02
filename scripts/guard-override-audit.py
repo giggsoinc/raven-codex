@@ -95,7 +95,7 @@ def main() -> None:
         or os.environ.get("GIT_COMMITTER_EMAIL")
         or os.environ.get("USER", "unknown")
     )
-    session = os.environ.get("CLAUDE_SESSION_ID", "")
+    session = os.environ.get("CODEX_SESSION_ID", "")
     project = os.path.basename(os.getcwd())
     snippet = commit_msg.strip()[:200]
 

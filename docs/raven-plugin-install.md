@@ -3,13 +3,13 @@
 </p>
 
 # Raven — Plugin Install Guide
-## Claude Code · VS Code · Cursor · AntiGravity · Windsurf
+## Codex · VS Code · Cursor · AntiGravity · Windsurf
 
 *Guardrails before you ship.*
 
 ---
 
-## Claude Code — MCP Plugin (recommended)
+## Codex — MCP Plugin (recommended)
 
 ```bash
 # Step 1 — Install Raven framework (once, ever)
@@ -23,7 +23,7 @@ claude mcp list
 # Should show: raven (stdio)
 ```
 
-**Tools available in every Claude Code session:**
+**Tools available in every Codex session:**
 ```
 /mcp__raven__raven_status       — check manifest, version, mode
 /mcp__raven__raven_cve_check    — CVE scan any library
@@ -128,7 +128,7 @@ sudo cp managed-mcp.json \
   "/Library/Application Support/ClaudeCode/managed-mcp.json"
 ```
 
-All developers get Raven automatically on next Claude Code launch.
+All developers get Raven automatically on next Codex launch.
 No install. No setup. Just works.
 
 ---

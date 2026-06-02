@@ -30,7 +30,7 @@ def build_entry(data, manifest):
         "dev":       os.environ.get("GIT_AUTHOR_EMAIL", os.environ.get("USER", "unknown")),
         "github_id": manifest.get("github_id", ""),
         "project":   manifest.get("project", os.path.basename(os.getcwd())),
-        "session":   os.environ.get("CLAUDE_SESSION_ID", "")
+        "session":   os.environ.get("CODEX_SESSION_ID", "")
     })
 
 def detect_provider(manifest, secrets):

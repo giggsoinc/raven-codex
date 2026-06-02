@@ -45,7 +45,7 @@ from pathlib import Path
 from typing import Optional
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-PROJECT_DIR = Path(os.environ.get("CLAUDE_PROJECT_DIR", ".")).resolve()
+PROJECT_DIR = Path(os.environ.get("CODEX_PROJECT_DIR", ".")).resolve()
 RAVEN_DIR = PROJECT_DIR / ".raven"
 AUDIT_DIR = RAVEN_DIR / "audit"
 MANIFEST = RAVEN_DIR / "manifest.json"
@@ -433,7 +433,7 @@ def recommend_user_behavior(metrics: dict, metadata: dict) -> list:
             "metric": "{:,} tokens in your prompts/responses".format(uw.get("tokens", 0)),
             "severity": "medium",
             "issue": "Heavy session context. Long prompts, big tool outputs, or accumulated state.",
-            "action": "Use /clear more often. Trim CLAUDE.md if it's bloated. "
+            "action": "Use /clear more often. Trim CODEX.md if it's bloated. "
                      "Avoid pasting large files — reference them by path.",
         })
 
@@ -464,7 +464,7 @@ def recommend_environment(metrics: dict, metadata: dict) -> list:
             "metric": "Manifest missing",
             "severity": "high",
             "issue": ".raven/manifest.json doesn't exist — Raven is running without project context.",
-            "action": "Type anything in Claude Code — Andie's Branch A onboarding will auto-create. "
+            "action": "Type anything in Codex — Andie's Branch A onboarding will auto-create. "
                      "Or run /raven-init.",
         })
 
@@ -1224,7 +1224,7 @@ def audit_drift(metrics: dict, metadata: dict, sample_rate: float = 0.01) -> dic
         })
 
     # Write audit log
-    audit_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR", ".")) / ".raven" / "audit"
+    audit_dir = Path(os.environ.get("CODEX_PROJECT_DIR", ".")) / ".raven" / "audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
     audit_path = audit_dir / f"dashboard-audit-{datetime.now().strftime('%Y-%m-%d')}.log"
     try:

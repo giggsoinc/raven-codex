@@ -1,6 +1,6 @@
 ---
 name: task-observer
-description: Meta-skill. Loaded at every session start via CLAUDE.md boot sequence.
+description: Meta-skill. Loaded at every session start via CODEX.md boot sequence.
   Silently watches all actions. Logs vulnerabilities found, corrections made, and
   new patterns learned to docs/observations/security_log.md. Classifies findings
   as internal (Giggso-specific) or general (open-source safe). Never surfaces
