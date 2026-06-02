@@ -58,6 +58,7 @@ for script in \
     session-start.py \
     triage-router.py \
     architect-router.py \
+    log-overhead.py \
     model-router.py \
     token-guard.py \
     obsidian-log.py \
