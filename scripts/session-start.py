@@ -393,6 +393,23 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
 
         if model_env_written:
             lines.append("  .model.env written ✓")
+
+        # ── 💰 Cost meter — show prior session spend if available ──────────────
+        try:
+            session_file = Path(".raven/.model-session.json")
+            if session_file.exists():
+                session_data = json.loads(session_file.read_text())
+                tok = session_data.get("session_tokens", 0)
+                cost = session_data.get("session_cost_usd", 0.0)
+                tier_breakdown = session_data.get("tier_counts", {})
+                if tok > 0:
+                    lines.append("")
+                    lines.append(f"💰 Last session: ~{tok:,} tok · ~${cost:.3f}")
+                    if tier_breakdown:
+                        breakdown = " · ".join(f"{k}:{v}" for k, v in tier_breakdown.items() if v > 0)
+                        lines.append(f"   Tiers used: {breakdown}")
+        except Exception:
+            pass  # Cost meter is best-effort, never blocks session start
     else:
         lines.append("☁️  No additional model providers detected.")
         lines.append("   Claude (current session) is your active model.")

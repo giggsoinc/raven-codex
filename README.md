@@ -36,6 +36,26 @@ The terminal installer writes `.raven/manifest.json`, hook scripts, and git pre-
 
 ---
 
+## 💰 Cost-Aware Routing — Built In
+
+Raven classifies every prompt and routes it to the cheapest adequate model:
+
+| Tier | Triggers | Model | Approx cost |
+|------|----------|-------|-------------|
+| **SIMPLE** | "fix typo", "rename var", single-file edits | Haiku | ~$0.25 / 1M tok |
+| **MEDIUM** | tests, docs, debug, refactor scope | Sonnet | ~$3 / 1M tok |
+| **COMPLEX** | architecture, security audit, multi-file reasoning | Opus | ~$15 / 1M tok |
+| **LOCAL_ONLY** | secrets detected in prompt, offline mode | Ollama | free, on-machine |
+
+- **Session token counter + cost shown in banner** every session start.
+- **Stop event writes session summary** to `~/RavenVault/sessions/` (Obsidian-compatible).
+- **Secrets in your prompt** → automatically forced to local Ollama. Cloud never sees them.
+- **No telemetry. Local-only.** All cost data stays on your machine.
+
+Configure via `.raven/.model.env` — raven-init writes it for you.
+
+---
+
 ## What's Included
 
 | Component | Count | What it does |
