@@ -1,24 +1,38 @@
-# Raven-Codex v3.0
+# Raven-Codex v3.4
 
 AI coding discipline for OpenAI Codex, GitHub Copilot, and Claude Code.
 
 CVE scanning · secret detection · PR gates · audit logs · 61 specialist skills · 10 guard agents · 13 engine scripts.
 
+Andie greets you on install. ≤2 questions. No bash. No 8-question wizard.
+
 ---
 
-## Install — Claude Code
+## Install — 90 seconds, zero questions
+
+1. Download [`raven-codex-plugin-v3.4.0.zip`](plugin/raven-codex-plugin-v3.4.0.zip)
+2. Open Claude Desktop → Settings → Extensions → Add plugin → drop the zip
+3. Open your project. Type anything.
+
+Andie greets you, scans your project, builds the manifest — done.
+
+> 👋 *"Hey, I'm Andie. I'm the mind of your installed Raven. Good — you have a keen ask for responsible and resilient AI. I noticed you don't have a manifest yet — to get Raven working, I need to scan your project and build one. OK to proceed?"*
+
+That's it. No setup script. No 8 questions. Andie infers everything she can and asks at most 2.
+
+<details>
+<summary>Prefer terminal install? (advanced)</summary>
 
 ```bash
+# Claude Code direct
 claude plugin install giggsoinc/raven-codex
-```
 
-## Install — Project Hooks + Engine Scripts
-
-```bash
+# Or curl-pipe (writes project hooks + engine scripts)
 bash <(curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-codex/main/install.sh)
 ```
 
-Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard, audit log, schema-guard, session-start), and git pre-commit gate.
+The terminal installer writes `.raven/manifest.json`, hook scripts, and git pre-commit gate. Most users don't need this — the plugin install does it via Andie on first use.
+</details>
 
 ---
 
@@ -26,7 +40,7 @@ Installs `.raven/manifest.json`, hook scripts (CVE check, secret scan, db-guard,
 
 | Component | Count | What it does |
 |---|---|---|
-| Specialist skills | 51 | Andie v6.3 · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
+| Specialist skills | 61 | Andie v6.3 · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
 | Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, missing architecture |
 | Slash commands | 14 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` `/raven-approve` `/raven-scaffold` `/raven-search` `/raven-sync` and more |
 | Engine scripts | 13 | cve-check · secret-scan · audit-log · emit-violation · db-guard · schema-guard · cve-prompt-guard · pr-gate · server · obsidian-log · session-start and more |
@@ -56,13 +70,12 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 `raven-codex` is the **Codex / Copilot / multi-platform** variant.
 `giggsoinc/raven` is the **Claude Code native** variant.
 
-Both share the same skill set and guard agents. Skills, agents, and engine scripts are kept in sync with [giggsoinc/raven](https://github.com/giggsoinc/raven).
+Both share the same skill set and guard agents. Skills, agents, and engine scripts are kept in sync.
 
 ---
 
 ## Docs
 
-- [Architecture](https://github.com/giggsoinc/raven)
 - [Issues](https://github.com/giggsoinc/raven-codex/issues)
 
 ---
