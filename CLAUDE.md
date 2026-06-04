@@ -1,34 +1,35 @@
 # CLAUDE.md — Raven-Codex (Claude Code)
 
-## MANDATORY FIRST STEP — Every Session, No Exceptions
+## Mandatory First Step
 
-**Invoke Andie before anything else.**
+**Use Andie as the compact routing layer before complex work.**
 
-Andie (`skills/andie/SKILL.md`) is the orchestration layer for all work in this session. It is not optional. It is not skippable.
+Andie (`skills/andie/SKILL.md`) classifies the request, preserves HITL/OODA discipline, and hands off executable plans. Brownfield bugs, regressions, stack traces, and debug tasks route directly to Andie Jr (`skills/andie-jr/SKILL.md`).
 
 ```
 Step 1: Load Andie
-Step 2: Andie runs PRE-FLIGHT (context, framework, team, token budget)
-Step 3: Andie routes to the correct specialist skill
-Step 4: Work begins
+Step 2: If this is brownfield/debug work, hand off to Andie Jr
+Step 3: Otherwise Andie plans and routes to the right specialist
+Step 4: Specialist execution begins after handoff
 ```
 
-Do not invoke any specialist skill directly. Do not start writing code. Do not run raven_status. **Load Andie. Run PRE-FLIGHT. Then proceed.**
+Do not use full Andie ceremony for bug fixes. Do not execute implementation as Andie; Andie plans and hands off.
 
 ---
 
 ## Why Andie First
 
-Without PRE-FLIGHT, Codex picks the nearest-looking skill and starts. That is the wrong behavior. Andie captures what you actually need, recommends the right framework, searches the skill library for the best specialist, and assembles the right team before any work starts.
+Without routing, Codex can pick the nearest-looking specialist and skip context. Andie keeps the plan coherent, while Andie Jr keeps brownfield debugging fast.
 
 ---
 
 ## Andie Routes To
 
-| Request type | Andie invokes |
+| Request type | Route |
 |---|---|
-| Technical domain question | FeynTech mode → domain specialist |
-| Architecture / design decision | Drama mode → expert panel |
+| Brownfield bug / debug / stack trace | `andie-jr` |
+| Technical domain question | Andie Deep plan → domain specialist |
+| Architecture / design decision | Andie Drama plan → specialist execution |
 | DB work | `db-specialist` or `postgres-specialist` |
 | Cloud infra | `aws-specialist` / `gcp-specialist` / `azure-specialist` / `oci-specialist` |
 | Security | `security-specialist` or `raven-security` |
@@ -57,14 +58,15 @@ These run silently behind every action. Do not disable them.
 ## Manifest Rules
 
 - Manifest exists → load it, trust it, proceed. Do not reinitialize.
-- No manifest → run `/raven-init`. Ask the user everything. Never auto-detect from venv, requirements.txt, or project files.
+- No manifest + existing code (brownfield) → run `/raven-init`. Auto-discover stack from filesystem signals. Ask user to confirm.
+- No manifest + empty folder (greenfield) → run `/raven-init`. Ask the user everything interactively.
 
 ---
 
 ## Non-Negotiable
 
 ```
-1. Andie first — always
+1. Andie routes first; Andie Jr handles brownfield bugs
 2. No secrets in code or logs
 3. No library without approval flow
 4. No commit without passing guard agents

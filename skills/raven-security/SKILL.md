@@ -17,8 +17,8 @@ allowed-tools: Read Bash Grep
 3. **Dependencies** — any import not in approved manifest stack?
 4. **Auth** — authentication bypasses, broken access control?
 5. **Input validation** — unvalidated user input reaching sensitive ops?
-6. **CVE** — run: `python3 .claude/scripts/cve-check.py --library {lib}` for each unapproved lib
-7. **Secrets in git** — run: `python3 .claude/scripts/secret-scan.py`
+6. **CVE** — run: `python3 .codex/scripts/cve-check.py --library {lib}` for each unapproved lib
+7. **Secrets in git** — run: `python3 .codex/scripts/secret-scan.py`
 
 ## Severity classification
 - P1 Critical → secrets exposed, injection possible, auth bypass

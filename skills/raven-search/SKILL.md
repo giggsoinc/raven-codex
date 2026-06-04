@@ -1,7 +1,7 @@
 ---
 name: raven-search
 description: Use when developer wants to find, evaluate, or install a new
-  Claude skill. Searches anthropics/skills and GitHub, runs security audit,
+  Codex skill. Searches skills registry and GitHub, runs security audit,
   shows preview, requires architect approval before installing.
 allowed-tools: Bash Read
 ---
@@ -20,11 +20,11 @@ Search for skills, audit them, and install with approval.
 ## Steps
 
 ### Search
-Run: `python3 .claude/scripts/skill-search.py --query "{query}"`
+Run: `python3 .codex/scripts/skill-search.py --query "{query}"`
 Show results table. Prompt: "Which would you like to install? (number or full_name)"
 
 ### Install + Audit
-Run: `python3 .claude/scripts/skill-search.py --install "{full_name}"`
+Run: `python3 .codex/scripts/skill-search.py --install "{full_name}"`
 
 Script will:
 1. Fetch SKILL.md from source
@@ -32,9 +32,9 @@ Script will:
 3. Show first 15 lines for manual review
 4. Block if critical issues found
 5. Ask for approval (yes/no)
-6. Install to .claude/skills/ if approved
+6. Install to .codex/skills/ if approved
 7. Add to manifest.approved_skills
-8. Remind to restart Claude Code
+8. Remind to restart Codex
 
 ### After install
 Remind developer:

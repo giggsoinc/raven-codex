@@ -6,7 +6,7 @@ itertools functools abc dataclasses asyncio contextlib io math
 random hashlib uuid copy enum time threading subprocess argparse
 
 ## Check against manifest stack.libraries + stack.data
-Run: python3 .claude/scripts/cve-check.py --library {lib} --version {ver}
+Run: python3 .codex/scripts/cve-check.py --library {lib} --version {ver}
 
 ## Decisions
 - Exit 0 → auto-approved

@@ -60,5 +60,5 @@ if ag: print('Approval gates: REQUIRED before any file write')
 If a task needs a capability not in loaded skills:
 1. Say what skill would help
 2. Ask: "Want me to search for a {skill_type} skill?"
-3. If yes → `python3 .claude/scripts/skill-search.py --query "{query}"`
+3. If yes → `python3 .codex/scripts/skill-search.py --query "{query}"`
 4. Show results, ask approval, never install silently

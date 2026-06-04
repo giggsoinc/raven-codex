@@ -1,3 +1,8 @@
+---
+name: raven-secret-scan
+description: Detect secrets, API keys, credentials, and tokens in changed files before they are committed.
+---
+
 # raven_secret_scan
 
 Detect secrets, API keys, credentials, and tokens in changed files before they are committed.

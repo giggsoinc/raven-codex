@@ -6,7 +6,7 @@ PROJECT_DIR="$(pwd)"
 
 echo ""
 echo "╔══════════════════════════════════════╗"
-echo "║        Raven-Codex Setup v2.8        ║"
+echo "║        Raven-Codex Setup v3.0        ║"
 echo "║   Enterprise AI Coding Discipline    ║"
 echo "╚══════════════════════════════════════╝"
 echo ""
@@ -35,7 +35,7 @@ cat > "$PROJECT_DIR/.raven/manifest.json" <<EOF
   "cloud": "$CLOUD",
   "mode": "active",
   "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "raven_version": "2.8.0",
+  "raven_version": "3.0.0",
   "approved_libraries": [],
   "blocked_patterns": [
     "TRUNCATE TABLE",

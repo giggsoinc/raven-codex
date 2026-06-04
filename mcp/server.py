@@ -114,7 +114,7 @@ def handle(method: str, params: dict) -> dict:
         return {
             "protocolVersion": "2024-11-05",
             "capabilities":    {"tools": {}},
-            "serverInfo":      {"name": "raven", "version": "2.8.0"}
+            "serverInfo":      {"name": "raven", "version": "3.0.0"}
         }
 
     if method == "tools/list":

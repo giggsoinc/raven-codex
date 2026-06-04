@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven Discipline Engine v2.9
+# AGENTS.md — Raven Discipline Engine v3.0
 
 ---
 
@@ -100,13 +100,14 @@ After showing the session opener, run these silently:
 
 ---
 
-## Andie — Mandatory Orchestration Layer
+## Andie — Compact Routing Layer
 
-All user requests go through Andie. Andie runs PRE-FLIGHT, selects the right specialist, and assembles the team before any work starts.
+Complex work goes through Andie. Andie plans, gates, and hands off to the right specialist.
 
-Do NOT route directly to a specialist skill. Do NOT start coding. Andie first.
+Brownfield bugs, regressions, stack traces, and debug tasks go directly to Andie Jr. Do not run full Andie ceremony for bug fixes.
 
 Andie is at: `.claude/skills/andie/SKILL.md`
+Andie Jr is at: `.claude/skills/andie-jr/SKILL.md`
 
 ---
 
@@ -192,4 +193,4 @@ Intentional deletions: `git commit -m "feat: remove X [GUARD:ALLOW-DELETE]"`
 
 ---
 
-*Raven v2.9 — MIT — github.com/giggsoinc/raven*
+*Raven-Codex v3.0 — MIT — github.com/giggsoinc/raven-codex*
