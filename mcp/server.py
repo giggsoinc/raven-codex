@@ -60,6 +60,18 @@ def run_script(script: str, args: list[str] = []) -> dict:
         "returncode":  result.returncode
     }
 
+def normalize_stack(manifest: dict) -> dict:
+    """Support both legacy flat manifests and nested stack objects."""
+    stack = manifest.get("stack", {})
+    if isinstance(stack, dict):
+        return stack
+    if isinstance(stack, str):
+        return {
+            "language": stack,
+            "cloud": manifest.get("cloud"),
+        }
+    return {}
+
 # Tool definitions
 TOOLS = [
     {
@@ -129,11 +141,13 @@ def handle(method: str, params: dict) -> dict:
             if not manifest_path.exists():
                 return {"content": [{"type":"text","text":"❌ manifest.json not found — run raven-setup.sh"}]}
             m = json.loads(manifest_path.read_text())
+            stack = normalize_stack(m)
+            cloud = stack.get("cloud", m.get("cloud"))
             out = (f"✅ Raven {m.get('standards','')}\n"
                    f"Project: {m.get('project')} | Mode: {m.get('mode')} | "
                    f"GitHub: {m.get('github_id','')} | Tag: {m.get('audit_tag','')}\n"
-                   f"Stack: {m.get('stack',{}).get('language')} | "
-                   f"Cloud: {m.get('stack',{}).get('cloud')}")
+                   f"Stack: {stack.get('language')} | "
+                   f"Cloud: {cloud}")
             return {"content": [{"type":"text","text":out}]}
 
         if name == "raven_cve_check":
