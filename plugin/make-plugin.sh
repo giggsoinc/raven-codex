@@ -78,6 +78,34 @@ for script in \
     fi
 done
 
+# ── MCP server (the only enforcement channel Codex respects) ──
+mkdir -p "$TMP_DIR/mcp"
+if [[ -f "$REPO_DIR/mcp/server.py" ]]; then
+    cp "$REPO_DIR/mcp/server.py" "$TMP_DIR/mcp/server.py"
+    chmod +x "$TMP_DIR/mcp/server.py"
+    echo "  ✅ mcp/server.py"
+else
+    echo "  ⚠️  mcp/server.py — not found, skipping"
+fi
+# cve-check.py + emit-violation.py are required by the MCP tools at runtime
+for dep in cve-check.py emit-violation.py sync-libraries.py; do
+    if [[ -f "$REPO_DIR/scripts/$dep" && ! -f "$TMP_DIR/scripts/$dep" ]]; then
+        cp "$REPO_DIR/scripts/$dep" "$TMP_DIR/scripts/$dep"
+        chmod +x "$TMP_DIR/scripts/$dep"
+        echo "  ✅ scripts/$dep (MCP runtime dep)"
+    fi
+done
+# .mcp.json — Claude Code plugin MCP declaration
+if [[ -f "$REPO_DIR/.mcp.json" ]]; then
+    cp "$REPO_DIR/.mcp.json" "$TMP_DIR/.mcp.json"
+    echo "  ✅ .mcp.json"
+fi
+# config.toml.example — OpenAI Codex CLI MCP config (manual merge)
+if [[ -f "$REPO_DIR/config.toml.example" ]]; then
+    cp "$REPO_DIR/config.toml.example" "$TMP_DIR/config.toml.example"
+    echo "  ✅ config.toml.example (Codex CLI)"
+fi
+
 # ── settings.json (hook wiring) ──
 cp "$SCRIPT_DIR/settings.json" "$TMP_DIR/settings.json"
 echo "  ✅ settings.json (hook wiring)"

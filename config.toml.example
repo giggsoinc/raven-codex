@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Raven-Codex — OpenAI Codex CLI configuration (example)
+#
+# OpenAI Codex CLI reads ~/.codex/config.toml (global, user-level).
+# It does NOT support Claude Code's hooks, Skill tool, or sub-agents — the ONLY
+# enforcement channel available to Codex is this MCP server + AGENTS.md.
+#
+# HOW TO USE:
+#   1. Install Raven-Codex:   bash install.sh   (clones to ~/.raven-codex)
+#   2. Merge the block below into ~/.codex/config.toml
+#      (create the file if it does not exist).
+#   3. Replace the absolute path if you cloned somewhere other than ~/.raven-codex.
+#   4. Restart Codex. Verify with:  ask Codex to call  raven_status
+#
+# Codex CLI does not expand ~ inside args — use an absolute path.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[mcp_servers.raven]
+command = "python3"
+# Absolute path to the bundled server. Adjust YOUR_HOME if needed.
+args = ["/Users/YOUR_USERNAME/.raven-codex/mcp/server.py"]
+
+# Optional: pass an OpenAI key for deep CVE scans (raven_cve_check).
+# Prefer leaving secrets out of config.toml — export OPENAI_API_KEY in your shell.
+# [mcp_servers.raven.env]
+# OPENAI_API_KEY = "sk-..."
+
+# Tools this server exposes once connected:
+#   raven_status      — manifest / version / mode / health
+#   raven_cve_check   — CVE scan a Python library before adding it
+#   raven_sync_libs   — sync requirements.txt -> manifest
+#   raven_debug       — full project health check
+#   raven_violation   — emit a violation to the audit log

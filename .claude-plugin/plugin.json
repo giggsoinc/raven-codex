@@ -68,5 +68,6 @@
     "../skills/tools-landscape/SKILL.md",
     "../skills/vault-specialist/SKILL.md",
     "../skills/vector-db-specialist/SKILL.md"
-  ]
+  ],
+  "mcpServers": "../.mcp.json"
 }
