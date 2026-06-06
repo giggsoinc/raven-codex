@@ -122,7 +122,11 @@ def main():
     if tokens == 0:
         return  # nothing to log
 
-    project_dir = Path(os.environ.get("CODEX_PROJECT_DIR", ".")).resolve()
+    project_dir = Path(
+        os.environ.get("CLAUDE_PROJECT_DIR")
+        or os.environ.get("CODEX_PROJECT_DIR")
+        or "."
+    ).resolve()
     session_path = project_dir / ".raven" / ".model-session.json"
 
     data = load_session(session_path)

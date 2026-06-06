@@ -45,7 +45,11 @@ from pathlib import Path
 from typing import Optional
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-PROJECT_DIR = Path(os.environ.get("CODEX_PROJECT_DIR", ".")).resolve()
+PROJECT_DIR = Path(
+    os.environ.get("CLAUDE_PROJECT_DIR")
+    or os.environ.get("CODEX_PROJECT_DIR")
+    or "."
+).resolve()
 RAVEN_DIR = PROJECT_DIR / ".raven"
 AUDIT_DIR = RAVEN_DIR / "audit"
 MANIFEST = RAVEN_DIR / "manifest.json"
@@ -1224,7 +1228,11 @@ def audit_drift(metrics: dict, metadata: dict, sample_rate: float = 0.01) -> dic
         })
 
     # Write audit log
-    audit_dir = Path(os.environ.get("CODEX_PROJECT_DIR", ".")) / ".raven" / "audit"
+    audit_dir = Path(
+        os.environ.get("CLAUDE_PROJECT_DIR")
+        or os.environ.get("CODEX_PROJECT_DIR")
+        or "."
+    ) / ".raven" / "audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
     audit_path = audit_dir / f"dashboard-audit-{datetime.now().strftime('%Y-%m-%d')}.log"
     try:
