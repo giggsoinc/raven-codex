@@ -35,22 +35,24 @@ def is_brownfield(repo_path: str = ".") -> bool:
 def is_data_only_question(prompt: str) -> bool:
     """
     Pure data question: keywords present, no code changes mentioned, no decisions.
-    Keywords: read, query, explain, show, list, count, help, what, how-much, search, find
+    Keywords: read, query, explain, show, list, count, help, what, how, search, find
     """
     data_keywords = {
         "read", "query", "explain", "show", "list", "count", "help",
-        "what", "how-much", "search", "find", "get", "display",
-        "tell me", "can you tell me", "whats", "what is", "how many",
-        "which one", "where is", "find me"
+        "what", "search", "find", "get", "display",
+        "tell me", "can you tell me", "what is", "how many",
+        "how does", "how much", "where is", "find me", "show me",
+        "list the", "count the", "enumerate", "describe", "outline"
     }
     code_change_indicators = {
         "write", "create", "build", "implement", "change", "fix",
-        "modify", "update", "delete", "remove", "add", "edit",
-        "refactor", "rewrite", "replace", "insert", "commit"
+        "modify", "update", "delete", "remove", "add ", "edit",
+        "refactor", "rewrite", "replace", "insert", "commit this",
+        "commit the", " commit ", "git commit"
     }
     decision_indicators = {
-        "should i", "should we", "should", "which approach", "best way",
-        "pros and cons", "compare", "decision", "which one", "or"
+        "should i", "should we", "should ", "which approach", "best way",
+        "pros and cons", "compare", "decision", "tradeoff", "versus"
     }
 
     prompt_lower = prompt.lower().strip()
