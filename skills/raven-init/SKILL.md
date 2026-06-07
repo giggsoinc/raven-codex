@@ -127,7 +127,7 @@ On accept → write `.raven/manifest.json` → validate → commit with audit tr
 After writing, run schema validation:
 
 ```bash
-python3 .claude/scripts/validate-manifest.py 2>/dev/null
+python3 scripts/validate-manifest.py 2>/dev/null
 ```
 
 If invalid → show the error, offer to re-prompt that specific field. Never erase user input on validation failure.
@@ -168,7 +168,7 @@ That's the proof of life. No separate `/raven-debug` needed.
 
 ## Migration Note
 
-The legacy `sr-00-preflight.sh` through `sr-06-verify.sh` setup scripts are NO LONGER the install path. They remain in the repo for advanced users but are not invoked by default. The Claude Desktop plugin install + Andie Branch A is the canonical flow.
+The legacy `sr-00-preflight.sh` through `sr-06-verify.sh` setup scripts are NO LONGER the install path. They remain in the repo for advanced users but are not invoked by default. The Codex plugin install + Andie Branch A is the canonical flow.
 
 ---
 

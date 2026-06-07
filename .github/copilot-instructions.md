@@ -49,7 +49,7 @@ These run silently behind every action. Do not disable them.
 - `architecture-guard` — no diagram = warn → block after 24h
 - `db-guard` — inline SQL, missing ERD, broken migrations
 - `skill-guard` — no skill reads secrets or .env
-- `claude-mem` — session memory, loads prior decisions
+- `codex-mem` — session memory, loads prior decisions
 - `task-observer` — silent log of corrections and patterns
 
 ---

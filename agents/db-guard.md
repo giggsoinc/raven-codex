@@ -170,6 +170,6 @@ Verdict: ✅ CLEAR — proceed  |  ❌ BLOCKED — fix above first
 
 Fires automatically on every file save via PostEdit hook.
 Silent unless a violation is found.
-When violation found — surface immediately in Claude's response before continuing.
+When violation found — surface immediately in Codex's response before continuing.
 
 Do not block write operations — report and advise. Hard blocks happen at pre-commit.

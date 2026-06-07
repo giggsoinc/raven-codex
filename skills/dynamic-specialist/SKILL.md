@@ -57,7 +57,7 @@ Pack format: see packs/README.md
 
 Before doing anything, run:
 ```bash
-python3 .claude/scripts/skill-search.py --query "[detected platform]"
+python3 scripts/skill-search.py --query "[detected platform]"
 ```
 
 If a curated skill is found → hand off immediately. Do not proceed with dynamic generation.

@@ -1,5 +1,5 @@
 ---
-name: claude-mem
+name: codex-mem
 description: "Use PROACTIVELY at session start and end to manage persistent memory. At start: loads recent session notes and open questions from .raven/memory/. At end: writes session summary with decisions, fixes, and carry-forwards. No external tools required — pure file I/O. Obsidian-compatible output."
 model: haiku
 tools:
@@ -7,7 +7,7 @@ tools:
   - Read
 ---
 
-# Claude Mem — Session Memory Agent v2.0
+# Codex Mem — Session Memory Agent v2.0
 
 No external tools. No CLI dependency. Pure file I/O to `.raven/memory/`.
 Obsidian-compatible markdown with frontmatter. Works everywhere Raven runs.

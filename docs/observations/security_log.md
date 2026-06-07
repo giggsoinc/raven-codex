@@ -70,7 +70,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CODEX.md and cur
 
 ### [2026-05-14] — bundle.sh / Source of truth
 
-**Issue:** `core/agents/claude-mem.md` had unquoted YAML description (colons in `At start:` / `At end:` broke the parser). `core/agents/guard-git-watch.md` had `name: skill-guard` (copy-paste from skill-guard.md — caused duplicate agent name on plugin validation). `core/commands/raven-init.md` had no frontmatter. bundle.sh copies `core/` → root, so running it overwrote previous fixes applied only to root files.
+**Issue:** `core/agents/codex-mem.md` had unquoted YAML description (colons in `At start:` / `At end:` broke the parser). `core/agents/guard-git-watch.md` had `name: skill-guard` (copy-paste from skill-guard.md — caused duplicate agent name on plugin validation). `core/commands/raven-init.md` had no frontmatter. bundle.sh copies `core/` → root, so running it overwrote previous fixes applied only to root files.
 **Fix:** Fixed all three source files in `core/`. Root files now stay correct through bundle runs.
 **Principle:** bundle.sh treats `core/` as the source of truth. All fixes must be applied to `core/` first, not to the generated root output. Fixing the output without fixing the source creates a regression on the next bundle run.
 **Status:** closed
@@ -79,7 +79,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CODEX.md and cur
 
 ### [2026-05-14] — Raven plugin / YAML validation
 
-**Issue:** `agents/claude-mem.md` failed plugin validation with "mapping values are not allowed here" — YAML parser choked on colons inside an unquoted multi-line description field.
+**Issue:** `agents/codex-mem.md` failed plugin validation with "mapping values are not allowed here" — YAML parser choked on colons inside an unquoted multi-line description field.
 **Fix:** Wrapped the description value in double quotes.
 **Principle:** Any YAML string containing `: ` (colon-space) must be quoted. This applies to all agent and skill frontmatter descriptions. Validate with `python3 -c "import yaml; yaml.safe_load(open(f).read())"` before packaging.
 **Status:** closed
