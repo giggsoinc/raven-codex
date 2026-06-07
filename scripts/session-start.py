@@ -415,6 +415,32 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
     has_manifest  = (cwd / ".raven" / "manifest.json").exists()
     has_agents_md = (cwd / "AGENTS.md").exists() or (cwd / "CODEX.md").exists()
 
+    # Dashboard context (optional — only if it exists and manifest is present)
+    if has_manifest:
+        dashboard_file = Path.home() / "RavenVault" / "dashboard.html"
+        session_json = cwd / ".raven" / ".model-session.json"
+        if dashboard_file.exists():
+            lines.append("")
+            lines.append("📊 Usage Dashboard")
+            try:
+                # Try to read last 30 days from monthly metrics
+                import datetime as dt
+                metrics_dir = Path.home() / "RavenVault" / ".metrics"
+                if metrics_dir.exists():
+                    month_key = dt.datetime.now().strftime("%Y-%m")
+                    month_file = metrics_dir / f"{month_key}.json"
+                    if month_file.exists():
+                        month_data = json.loads(month_file.read_text())
+                        sessions = month_data.get("sessions", 0)
+                        tokens = month_data.get("total", {}).get("tokens", 0)
+                        cost = month_data.get("total", {}).get("cost_usd", 0)
+                        if sessions > 0:
+                            lines.append(f"   This month: {sessions} session(s) · {tokens:,} tokens · ${cost:.2f}")
+            except Exception:
+                pass
+            lines.append(f"   📈 Open: {dashboard_file}")
+            lines.append("      Refresh: `raven dashboard --refresh`")
+
     # ── MANDATORY GREETING — fires for BOTH greenfield and brownfield ──────────
     # First message after install ALWAYS shows the Welcome greeting before any routing.
     # This is hook-enforced, not description-based. Codex cannot skip.

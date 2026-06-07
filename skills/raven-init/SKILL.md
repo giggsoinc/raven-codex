@@ -160,9 +160,10 @@ After commit, Andie returns one final line:
 ```
 ✅ Raven is loaded. Manifest committed.
    Ask me anything — I'll route to the right specialist automatically.
+   📊 View usage: open ~/RavenVault/dashboard.html or run `raven dashboard`
 ```
 
-That's the proof of life. No separate `/raven-debug` needed.
+That's the proof of life. No separate `/raven-debug` needed. The dashboard link is optional — only shown if dashboard exists.
 
 ---
 
