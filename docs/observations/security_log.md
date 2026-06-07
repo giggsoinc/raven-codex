@@ -43,7 +43,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CODEX.md and cur
 
 ### [2026-05-14] — raven-codex / Plugin install
 
-**Issue:** `.codex-plugin/plugin.json` was at v2.8.0 with a hardcoded `skills` array of only 4 entries. Installing `giggsoinc/raven-codex` gave users 15 skills instead of 49 because Claude read the stale explicit list, not the directory.
+**Issue:** `.codex-plugin/plugin.json` was at v2.8.0 with a hardcoded `skills` array of only 4 entries. Installing `giggsoinc/raven-codex` gave users 15 skills instead of 49 because the plugin loaded the stale explicit list, not the directory.
 **Fix:** Updated `.codex-plugin/plugin.json` to v2.9.1 with all 49 skills explicitly listed.
 **Principle:** Plugin files with explicit skills arrays shadow directory scanning. Any explicit list must be kept in sync with the actual skills/ directory or removed in favour of directory scanning.
 **Status:** closed

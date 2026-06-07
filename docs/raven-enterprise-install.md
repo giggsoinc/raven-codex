@@ -25,7 +25,7 @@ Install Raven as a Codex MCP plugin. Available globally across all projects.
 
 ```bash
 # Install plugin (run once, ever)
-claude mcp add raven -- python3 ~/.raven/mcp/server.py
+codex mcp add raven -- python3 ~/.raven/mcp/server.py
 
 # Then init any project
 cd YourProject

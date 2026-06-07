@@ -16,10 +16,10 @@
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 
 # Step 2 — Register as MCP plugin
-claude mcp add raven -- python3 ~/.raven/mcp/server.py
+codex mcp add raven -- python3 ~/.raven/mcp/server.py
 
 # Step 3 — Verify
-claude mcp list
+codex mcp list
 # Should show: raven (stdio)
 ```
 
@@ -125,7 +125,7 @@ sudo cp -r ~/.raven/* /usr/local/raven/
 
 # Deploy managed MCP config
 sudo cp managed-mcp.json \
-  "/Library/Application Support/ClaudeCode/managed-mcp.json"
+  "/Library/Application Support/Codex/managed-mcp.json"
 ```
 
 All developers get Raven automatically on next Codex launch.
@@ -164,8 +164,8 @@ For MDM/Jamf/Intune deployment — push to all machines:
 }
 ```
 
-macOS path: `/Library/Application Support/ClaudeCode/managed-mcp.json`
-Windows path: `C:\ProgramData\ClaudeCode\managed-mcp.json`
+macOS path: `/Library/Application Support/Codex/managed-mcp.json`
+Windows path: `C:\ProgramData\Codex\managed-mcp.json`
 
 ---
 
