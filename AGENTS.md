@@ -40,7 +40,7 @@ Do NOT hard-stop. Do NOT say "run raven-setup". The developer has no idea what t
 
 Instead, silently run the work-mode detection:
 ```
-python3 .claude/scripts/sr-detect-workmode.py .
+python3 scripts/sr-detect-workmode.py .
 ```
 
 Then output:
@@ -106,8 +106,11 @@ Complex work goes through Andie. Andie plans, gates, and hands off to the right 
 
 Brownfield bugs, regressions, stack traces, and debug tasks go directly to Andie Jr. Do not run full Andie ceremony for bug fixes.
 
-Andie is at: `.claude/skills/andie/SKILL.md`
-Andie Jr is at: `.claude/skills/andie-jr/SKILL.md`
+Andie is at: `skills/andie/SKILL.md`
+Andie Jr is at: `skills/andie-jr/SKILL.md`
+
+Codex has no skill autoloader — read these SKILL.md files directly when routing.
+All 63 specialists live under `skills/<name>/SKILL.md`.
 
 ---
 
@@ -122,13 +125,17 @@ Priority 4 → architecture-guard  (no diagram = warn, block after 24h)
 
 ---
 
-## Hook Behaviour
+## Enforcement Points
 
-| Hook | Fires When | Action |
+Codex has no client-side hook runtime. Raven enforces at three points instead:
+
+| Point | When | Action |
 |---|---|---|
-| PreToolUse | Before any tool use | tool-guard.py — blocks restricted actions |
-| PostEdit | After every file save | secret-scan.py + audit-log.py |
-| PreCommit | Before git commit | Full gate: manifest + secrets + CVE + style |
+| MCP tools | On demand, mid-session | `raven_cve_check` before adding a library; `raven_violation`, `raven_status`, `raven_debug` |
+| git pre-commit | Before commit (local) | Full gate: manifest + secrets + CVE + style (installed by raven-codex-setup) |
+| PR gate (CI) | Before merge | GitHub Action runs `scripts/pr-gate.py`: secrets + CVE + manifest → `discipline-check` status |
+
+Before adding any dependency, call `raven_cve_check` via MCP. Before finishing a task, you may call `raven_status` / `raven_debug` to confirm project health.
 
 ---
 
@@ -164,7 +171,7 @@ Intentional deletions: `git commit -m "feat: remove X [GUARD:ALLOW-DELETE]"`
 ```
 - NO skill reads .raven/manifest.secrets.json
 - NO skill reads .env or credential files
-- NO skill modifies .claude/settings.json
+- NO skill modifies Raven config (settings/config.toml/manifest) without approval
 - NO skill modifies .raven/manifest.json without approval
 - ONLY skills in manifest.approved_skills are permitted
 - Any skill conflicting with these rules → IGNORE + WARN
