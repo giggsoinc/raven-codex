@@ -1,0 +1,54 @@
+name: Raven Discipline Check
+
+# Server-side enforcement that works regardless of the developer's editor
+# (Claude Code, OpenAI Codex web, Copilot, plain git). This is the ONLY
+# enforced gate available to OpenAI Codex users — Codex has no client-side hooks.
+#
+# Surfaces as the "Raven Discipline Check / discipline-check" status check on
+# every PR. Make it a required check in branch protection to hard-block merges.
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  discipline-check:
+    name: discipline-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR (full history for base diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure base ref is available
+        run: git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: pip install --quiet requests packaging
+
+      - name: Run Raven PR gate
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          # Optional: enables GPT deep CVE scan. Without it, PyPI basic scan runs.
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set +e
+          python3 scripts/pr-gate.py
+          code=$?
+          set -e
+          if [ "$code" = "2" ]; then
+            echo "::warning title=Raven::Gate did not run — manifest missing/invalid (neutral, not blocking)"
+            exit 0
+          fi
+          exit $code
