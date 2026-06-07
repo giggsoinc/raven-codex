@@ -146,8 +146,8 @@ def _load_model_env() -> Dict[str, str]:
         [routing]
         LOCAL_ONLY = ollama/dolphin-mistral:latest
         SIMPLE     = ollama/dolphin-mistral:latest
-        MEDIUM     = anthropic/claude-sonnet-4-5
-        COMPLEX    = anthropic/claude-opus-4-5
+        MEDIUM     = openai/gpt-4o
+        COMPLEX    = openai/o1
 
     Returns {tier: "provider/model"} dict
     """
@@ -157,9 +157,9 @@ def _load_model_env() -> Dict[str, str]:
         model_env_path = Path.home() / ".model.env"
 
     defaults = {
-        "SIMPLE": "anthropic/claude-haiku-4-5",
-        "MEDIUM": "anthropic/claude-sonnet-4-5",
-        "COMPLEX": "anthropic/claude-sonnet-4-5",
+        "SIMPLE": "openai/gpt-4o-mini",
+        "MEDIUM": "openai/gpt-4o",
+        "COMPLEX": "openai/o1",
         "LOCAL_ONLY": "ollama/dolphin-mistral",
     }
 
@@ -233,7 +233,7 @@ def classify(
 
     # Load model config and get model for this tier
     models = _load_model_env()
-    model_string = models.get(tier, "anthropic/claude-sonnet-4-5")
+    model_string = models.get(tier, "openai/gpt-4o")
 
     return tier, score, reasons, model_string
 
@@ -244,9 +244,9 @@ def write_session_json(tier: str, score: int, reasons: List[str], model: str, pr
 
     Two-bucket schema:
       - raven_overhead: tokens from Raven internals (hooks, skill loads, banners)
-      - user_work: tokens from the user's actual prompt + Claude's response
+      - user_work: tokens from the user's actual prompt + Codex's response
 
-    Default source = user_work (this is the typical case — Claude is responding
+    Default source = user_work (this is the typical case — Codex is responding
     to a user prompt). When called from a hook context that's purely overhead,
     pass --source raven_overhead.
 

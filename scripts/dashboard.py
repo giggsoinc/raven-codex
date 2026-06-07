@@ -45,11 +45,7 @@ from pathlib import Path
 from typing import Optional
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-PROJECT_DIR = Path(
-    os.environ.get("CLAUDE_PROJECT_DIR")
-    or os.environ.get("CODEX_PROJECT_DIR")
-    or "."
-).resolve()
+PROJECT_DIR = Path(os.environ.get("CODEX_PROJECT_DIR", ".")).resolve()
 RAVEN_DIR = PROJECT_DIR / ".raven"
 AUDIT_DIR = RAVEN_DIR / "audit"
 MANIFEST = RAVEN_DIR / "manifest.json"
@@ -480,8 +476,8 @@ def recommend_environment(metrics: dict, metadata: dict) -> list:
             "metric": "0 vault sessions",
             "severity": "high",
             "issue": "No session summaries in ~/RavenVault/sessions/ — obsidian-log not firing.",
-            "action": "Verify settings.json wires Stop → obsidian-log.py. "
-                     "Reinstall plugin: claude plugin install raven-plugin-v{}.zip".format(PLUGIN_VERSION),
+            "action": "Run obsidian-log.py at session end, or re-run raven-codex-setup "
+                     "to reinstall the git pre-commit gate (v{}).".format(PLUGIN_VERSION),
         })
 
     # Rule E3 — Guard violations / approvals (still useful, not bucket-specific)
@@ -761,7 +757,7 @@ def render_obsidian(metrics: dict, metadata: dict, recs: list) -> str:
     lines.append(f"| Share | {ov_pct:.1f}% | {uw_pct:.1f}% | 100.0% |")
     lines.append("")
     lines.append("> 🪶 **Raven Code** = tokens consumed by hooks, skill loads, classifier injections, banners. Raven team's lever.")
-    lines.append("> 👤 **User Work** = tokens consumed by your prompts + Claude's responses + tool calls. Your lever.")
+    lines.append("> 👤 **User Work** = tokens consumed by your prompts + Codex's responses + tool calls. Your lever.")
     lines.append("")
 
     # Raven Code breakdown
@@ -1228,11 +1224,7 @@ def audit_drift(metrics: dict, metadata: dict, sample_rate: float = 0.01) -> dic
         })
 
     # Write audit log
-    audit_dir = Path(
-        os.environ.get("CLAUDE_PROJECT_DIR")
-        or os.environ.get("CODEX_PROJECT_DIR")
-        or "."
-    ) / ".raven" / "audit"
+    audit_dir = Path(os.environ.get("CODEX_PROJECT_DIR", ".")) / ".raven" / "audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
     audit_path = audit_dir / f"dashboard-audit-{datetime.now().strftime('%Y-%m-%d')}.log"
     try:

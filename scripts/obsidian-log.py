@@ -2,7 +2,7 @@
 """
 obsidian-log.py v2 — Raven Stop hook
 Three-layer session logging:
-  A) AI summary via claude -p (if CLI available)
+  A) AI summary via codex CLI (if available)
   B) Real content from session transcript (tool calls, files touched)
   C) Git state (recent commits, uncommitted changes)
 
@@ -40,9 +40,9 @@ except:
 session_id     = hook_input.get("session_id", "")
 transcript_path = hook_input.get("transcript_path", "")
 
-# Fallback: find transcript by session_id in ~/.claude/projects/
+# Fallback: find transcript by session_id in ~/.codex/sessions/
 if not transcript_path and session_id:
-    for p in pathlib.Path.home().glob(f".claude/projects/**/{session_id}.jsonl"):
+    for p in pathlib.Path.home().glob(f".codex/**/{session_id}.jsonl"):
         transcript_path = str(p)
         break
 
@@ -103,7 +103,7 @@ git_status = run(["git", "status", "--short"])
 git_branch = run(["git", "rev-parse", "--abbrev-ref", "HEAD"])
 git_diff_stat = run(["git", "diff", "--stat", "HEAD"])
 
-# ── Option A: AI summary via claude CLI ───────────────────────────────────────
+# ── Option A: AI summary via codex CLI ────────────────────────────────────────
 
 ai_summary = ""
 
@@ -126,7 +126,7 @@ Skills activated:
 
 try:
     result = subprocess.run(
-        ["claude", "-p",
+        ["codex", "-p",
          f"In 3-5 crisp bullets (≤15 words each), summarise what was accomplished in this coding session. No preamble. Just bullets starting with •.\n\n{context_for_ai}"],
         capture_output=True, text=True, timeout=30
     )

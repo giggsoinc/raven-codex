@@ -3,7 +3,7 @@
 
 The ONLY enforcement channel Codex respects (no hooks/skills/agents there).
 Codex CLI: merge config.toml.example into ~/.codex/config.toml.
-Claude: declared via plugin.json -> ./.mcp.json.
+Codex plugin: declared via .codex-plugin/plugin.json -> ./.mcp.json.
 Tools: raven_status, raven_cve_check, raven_sync_libs, raven_debug, raven_violation.
 """
 

@@ -6,7 +6,7 @@
 import argparse, json, sys, os, subprocess, shutil, urllib.request, urllib.parse
 
 MANIFEST   = ".raven/manifest.json"
-SKILLS_DIR = ".claude/skills"
+SKILLS_DIR = "skills"
 G,Y,R,B,W,N = '\033[0;32m','\033[1;33m','\033[0;31m','\033[0;34m','\033[1m','\033[0m'
 
 def load_manifest():
@@ -131,7 +131,7 @@ def main():
         print("─"*75)
         for i,(n,fn,d,s,src) in enumerate(results,1):
             print(f"{i:<3}{src:<12}{n:<26}★{s:<8,}{d[:30]}")
-        print(f"\n{B}Install: python3 .claude/scripts/skill-search.py --install <full_name>{N}\n")
+        print(f"\n{B}Install: python3 scripts/skill-search.py --install <full_name>{N}\n")
         return
 
     if args.install:

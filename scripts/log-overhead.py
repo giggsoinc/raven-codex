@@ -41,13 +41,13 @@ EMPTY_SCHEMA = {
     "providers": {},
 }
 
-# Rough cost estimates per 1M tokens (Claude pricing — adjust as needed)
+# Rough cost estimates per 1M tokens (OpenAI pricing — adjust as needed)
 COST_PER_1M = {
-    "claude-haiku-4-5":  {"in": 0.25, "out": 1.25},
-    "claude-sonnet-4-6": {"in": 3.00, "out": 15.00},
-    "claude-opus-4-7":   {"in": 15.00, "out": 75.00},
-    "ollama":            {"in": 0.00, "out": 0.00},
-    "default-overhead":  {"in": 0.25, "out": 0.25},  # overhead enters as input
+    "gpt-4o-mini": {"in": 0.15, "out": 0.60},
+    "gpt-4o":      {"in": 2.50, "out": 10.00},
+    "o1":          {"in": 15.00, "out": 60.00},
+    "ollama":      {"in": 0.00, "out": 0.00},
+    "default-overhead": {"in": 0.15, "out": 0.15},  # overhead enters as input
 }
 
 
@@ -107,7 +107,7 @@ def main():
     parser.add_argument("--source", required=True, help="Source identifier (script name or skill-load:NAME)")
     parser.add_argument("--tokens", type=int, default=0, help="Token count contributed")
     parser.add_argument("--model", default="default-overhead", help="Model class for cost estimate")
-    parser.add_argument("--provider", default=None, help="Provider for attribution (anthropic/openai/ollama)")
+    parser.add_argument("--provider", default=None, help="Provider for attribution (openai/ollama)")
     args = parser.parse_args()
 
     # If no tokens given, read stdin and estimate
@@ -122,11 +122,7 @@ def main():
     if tokens == 0:
         return  # nothing to log
 
-    project_dir = Path(
-        os.environ.get("CLAUDE_PROJECT_DIR")
-        or os.environ.get("CODEX_PROJECT_DIR")
-        or "."
-    ).resolve()
+    project_dir = Path(os.environ.get("CODEX_PROJECT_DIR", ".")).resolve()
     session_path = project_dir / ".raven" / ".model-session.json"
 
     data = load_session(session_path)

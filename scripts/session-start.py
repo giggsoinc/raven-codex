@@ -230,15 +230,10 @@ def detect_project_type() -> dict:
 # ── Model Discovery ────────────────────────────────────────────────────────────
 
 CLOUD_PROVIDERS = {
-    "anthropic": {
-        "env_keys": ["ANTHROPIC_API_KEY"],
-        "models":   ["claude-haiku-4-5", "claude-sonnet-4-5", "claude-opus-4-5"],
-        "tiers":    {"claude-haiku-4-5": "low", "claude-sonnet-4-5": "medium", "claude-opus-4-5": "high"},
-    },
     "openai": {
         "env_keys": ["OPENAI_API_KEY"],
-        "models":   ["gpt-4o-mini", "gpt-4o", "o3-mini"],
-        "tiers":    {"gpt-4o-mini": "low", "gpt-4o": "medium", "o3-mini": "medium"},
+        "models":   ["gpt-4o-mini", "gpt-4o", "o1"],
+        "tiers":    {"gpt-4o-mini": "low", "gpt-4o": "medium", "o1": "high"},
     },
     "groq": {
         "env_keys": ["GROQ_API_KEY"],
@@ -315,7 +310,7 @@ def build_routing(providers: list[dict]) -> dict:
     medium_pick  = pick(medium, simple_pick)
     complex_pick = pick(high,   medium_pick)
 
-    def fmt(t): return f"{t[0]}/{t[1]}" if t else "anthropic/claude-sonnet-4-5"
+    def fmt(t): return f"{t[0]}/{t[1]}" if t else "openai/gpt-4o"
 
     return {
         "LOCAL_ONLY": fmt(local_pick),
@@ -412,20 +407,20 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
             pass  # Cost meter is best-effort, never blocks session start
     else:
         lines.append("☁️  No additional model providers detected.")
-        lines.append("   Claude (current session) is your active model.")
-        lines.append("   To add: set ANTHROPIC_API_KEY, GROQ_API_KEY, or start Ollama.")
+        lines.append("   Codex (current session) is your active model.")
+        lines.append("   To add: set OPENAI_API_KEY, GROQ_API_KEY, or start Ollama.")
 
     # Brownfield advisory + domain skill trigger
     cwd = Path(".")
     has_manifest  = (cwd / ".raven" / "manifest.json").exists()
-    has_claude_md = (cwd / ".claude" / "CODEX.md").exists() or (cwd / "CODEX.md").exists()
+    has_agents_md = (cwd / "AGENTS.md").exists() or (cwd / "CODEX.md").exists()
 
     # ── MANDATORY GREETING — fires for BOTH greenfield and brownfield ──────────
     # First message after install ALWAYS shows the Welcome greeting before any routing.
-    # This is hook-enforced, not description-based. Claude cannot skip.
+    # This is hook-enforced, not description-based. Codex cannot skip.
     lines.append("")
     lines.append("━━━ [GREETING REQUIRED] — MANDATORY FIRST RESPONSE ━━━")
-    lines.append("On the FIRST user message of this session, Claude MUST respond")
+    lines.append("On the FIRST user message of this session, Codex MUST respond")
     lines.append("with the EXACT greeting below — no other text, no analysis, no routing yet:")
     lines.append("")
     lines.append('    "Welcome to Raven — your Enterprise Discipline for AI-based Vibe Coding.')

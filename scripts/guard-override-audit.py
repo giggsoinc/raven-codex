@@ -7,10 +7,10 @@ Writes an unconditional audit entry and fires emit-violation (after-the-fact not
 This ensures overrides are never silent — they always produce a record and email.
 
 Usage (from pre-commit hook):
-  python3 .claude/scripts/guard-override-audit.py --message "$COMMIT_MSG"
+  python3 scripts/guard-override-audit.py --message "$COMMIT_MSG"
 
 Or pipe the commit message:
-  cat .git/COMMIT_EDITMSG | python3 .claude/scripts/guard-override-audit.py
+  cat .git/COMMIT_EDITMSG | python3 scripts/guard-override-audit.py
 
 Exit 0 always — audit only, never blocks.
 """

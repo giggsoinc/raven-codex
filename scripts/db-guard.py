@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 db-guard.py — PostEdit hook: detect inline SQL in non-SQL source files.
-Reads Claude's tool use input from stdin (JSON), checks the file written.
+Reads Codex's tool use input from stdin (JSON), checks the file written.
 Emits additionalContext JSON if a violation is found.
 """
 
