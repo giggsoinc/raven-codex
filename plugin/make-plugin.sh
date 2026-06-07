@@ -4,11 +4,11 @@
 # Excludes enterprise-only scripts (Hub agent, MCP guard, model discovery, policy sync, etc.)
 #
 # ZIP structure:
-#   .claude-plugin/plugin.json
+#   .codex-plugin/plugin.json
 #   skills/{name}/SKILL.md
 #   agents/{name}.md
 #   scripts/{name}.py
-#   settings.json
+#   mcp/server.py + .mcp.json + config.toml.example
 #   .model.env.template
 #
 # Usage: bash plugin/make-plugin.sh
@@ -28,11 +28,6 @@ echo "  Raven-Codex (OSS) — Plugin Builder"
 echo "  Version: $VERSION"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-
-# ── plugin.json (Codex format) ──
-mkdir -p "$TMP_DIR/.claude-plugin"
-cp "$REPO_DIR/.claude-plugin/plugin.json" "$TMP_DIR/.claude-plugin/plugin.json"
-echo "  ✅ .claude-plugin/plugin.json"
 
 # ── plugin.json (Codex format) ──
 mkdir -p "$TMP_DIR/.codex-plugin"
@@ -95,7 +90,7 @@ for dep in cve-check.py emit-violation.py sync-libraries.py; do
         echo "  ✅ scripts/$dep (MCP runtime dep)"
     fi
 done
-# .mcp.json — Claude Code plugin MCP declaration
+# .mcp.json — MCP server declaration (Codex plugin manifest references it)
 if [[ -f "$REPO_DIR/.mcp.json" ]]; then
     cp "$REPO_DIR/.mcp.json" "$TMP_DIR/.mcp.json"
     echo "  ✅ .mcp.json"
@@ -105,10 +100,6 @@ if [[ -f "$REPO_DIR/config.toml.example" ]]; then
     cp "$REPO_DIR/config.toml.example" "$TMP_DIR/config.toml.example"
     echo "  ✅ config.toml.example (Codex CLI)"
 fi
-
-# ── settings.json (hook wiring) ──
-cp "$SCRIPT_DIR/settings.json" "$TMP_DIR/settings.json"
-echo "  ✅ settings.json (hook wiring)"
 
 # ── .model.env.template (cost routing config) ──
 cp "$REPO_DIR/.model.env.template" "$TMP_DIR/.model.env.template" 2>/dev/null && echo "  ✅ .model.env.template"
@@ -155,8 +146,7 @@ echo "  📦 Built: $ZIP_NAME"
 echo "  📏 Size:  $SIZE"
 echo ""
 echo "  🔍 Validating..."
-python3 -c "import json; json.load(open('$TMP_DIR/.claude-plugin/plugin.json'))" && echo "  ✅ plugin.json valid JSON"
-python3 -c "import json; json.load(open('$TMP_DIR/settings.json'))" && echo "  ✅ settings.json valid JSON"
+python3 -c "import json; json.load(open('$TMP_DIR/.codex-plugin/plugin.json'))" && echo "  ✅ plugin.json valid JSON"
 echo "  ✅ $SKILL_COUNT skills at ZIP root"
 echo "  ✅ $AGENT_COUNT agents at ZIP root"
 SCRIPT_COUNT=$(find "$TMP_DIR/scripts" -name "*.py" | wc -l | tr -d ' ')
@@ -164,8 +154,8 @@ echo "  ✅ $SCRIPT_COUNT OSS scripts bundled"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Done. Install:"
-echo "  claude plugin install $ZIP_PATH"
+echo "  Done. Built: $ZIP_PATH"
+echo "  Wire the MCP server via config.toml.example → ~/.codex/config.toml"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 

@@ -30,7 +30,7 @@ def find_scripts_dir():
     """Locate the Raven scripts dir (project-local, bundled, or installed)."""
     cwd = Path(os.getcwd())
     here = Path(os.path.dirname(__file__))
-    for candidate in [cwd / ".raven" / "scripts", cwd / ".claude" / "scripts",
+    for candidate in [cwd / ".raven" / "scripts", cwd / ".codex" / "scripts",
                       here.parent / "scripts", here,
                       Path.home() / ".raven-codex" / "scripts", Path.home() / ".raven" / "scripts"]:
         if candidate.exists() and (candidate / "cve-check.py").exists():
