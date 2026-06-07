@@ -1,4 +1,4 @@
-# AGENTS.md — Raven Discipline Engine v3.0
+# AGENTS.md — Raven Discipline Engine v4.1
 
 ---
 
@@ -193,4 +193,4 @@ Intentional deletions: `git commit -m "feat: remove X [GUARD:ALLOW-DELETE]"`
 
 ---
 
-*Raven-Codex v3.0 — MIT — github.com/giggsoinc/raven-codex*
+*Raven-Codex v4.1 — MIT — github.com/giggsoinc/raven-codex*

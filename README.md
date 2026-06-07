@@ -1,38 +1,45 @@
-# Raven-Codex v3.4
+# Raven-Codex v4.1
 
-AI coding discipline for OpenAI Codex, GitHub Copilot, and Codex.
+AI coding discipline for OpenAI Codex, GitHub Copilot, and any MCP-compatible agent.
 
-CVE scanning · secret detection · PR gates · audit logs · 61 specialist skills · 10 guard agents · 13 engine scripts.
+CVE scanning · secret detection · PR gates · audit logs · 61 specialist skills · 10 guard agents · engine scripts.
 
-Andie greets you on install. ≤2 questions. No bash. No 8-question wizard.
+Andie greets you on first use. ≤2 questions. No bash. No 8-question wizard.
 
 ---
 
-## Install — 90 seconds, zero questions
+## Install
 
-1. Download [`raven-codex-plugin-v3.4.0.zip`](plugin/raven-codex-plugin-v3.4.0.zip)
-2. Open Claude Desktop → Settings → Extensions → Add plugin → drop the zip
-3. Open your project. Type anything.
+Raven-Codex enforces discipline through three platform-agnostic channels: an **MCP server** (tool-level checks), a **GitHub PR gate** (server-side enforcement on every PR), and **AGENTS.md** (instruction layer your agent reads automatically).
 
-Andie greets you, scans your project, builds the manifest — done.
-
-> 👋 *"Hey, I'm Andie. I'm the mind of your installed Raven. Good — you have a keen ask for responsible and resilient AI. I noticed you don't have a manifest yet — to get Raven working, I need to scan your project and build one. OK to proceed?"*
-
-That's it. No setup script. No 8 questions. Andie infers everything she can and asks at most 2.
-
-<details>
-<summary>Prefer terminal install? (advanced)</summary>
+### 1. OpenAI Codex CLI — MCP server (90 seconds)
 
 ```bash
-# Codex direct
-claude plugin install giggsoinc/raven-codex
-
-# Or curl-pipe (writes project hooks + engine scripts)
+# Clone the engine
 bash <(curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-codex/main/install.sh)
 ```
 
-The terminal installer writes `.raven/manifest.json`, hook scripts, and git pre-commit gate. Most users don't need this — the plugin install does it via Andie on first use.
-</details>
+Then merge the snippet from [`config.toml.example`](config.toml.example) into `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.raven]
+command = "python3"
+args = ["/Users/YOUR_USERNAME/.raven-codex/mcp/server.py"]
+```
+
+Restart Codex and ask it to run `raven_status`. That's it — the `raven_*` tools are now available.
+
+### 2. GitHub PR gate — enforced on every PR
+
+Copy [`.github/workflows/raven-pr-gate.yml`](.github/workflows/raven-pr-gate.yml) into your repo and run `raven-setup` to create `.raven/manifest.json`. The gate posts a `discipline-check` status on each PR: CVE scan · secret detection · manifest validation. Make it a required check in branch protection to hard-block merges.
+
+### 3. Per-project setup
+
+```bash
+cd YourProject && raven-codex-setup
+```
+
+Writes `.raven/manifest.json`, hook scripts, and the local git pre-commit gate.
 
 ---
 
@@ -40,19 +47,19 @@ The terminal installer writes `.raven/manifest.json`, hook scripts, and git pre-
 
 Raven classifies every prompt and routes it to the cheapest adequate model:
 
-| Tier | Triggers | Model | Approx cost |
-|------|----------|-------|-------------|
-| **SIMPLE** | "fix typo", "rename var", single-file edits | Haiku | ~$0.25 / 1M tok |
-| **MEDIUM** | tests, docs, debug, refactor scope | Sonnet | ~$3 / 1M tok |
-| **COMPLEX** | architecture, security audit, multi-file reasoning | Opus | ~$15 / 1M tok |
-| **LOCAL_ONLY** | secrets detected in prompt, offline mode | Ollama | free, on-machine |
+| Tier | Triggers | Approx cost |
+|------|----------|-------------|
+| **SIMPLE** | "fix typo", "rename var", single-file edits | lowest tier |
+| **MEDIUM** | tests, docs, debug, refactor scope | mid tier |
+| **COMPLEX** | architecture, security audit, multi-file reasoning | top tier |
+| **LOCAL_ONLY** | secrets detected in prompt, offline mode | free, on-machine |
 
 - **Session token counter + cost shown in banner** every session start.
 - **Stop event writes session summary** to `~/RavenVault/sessions/` (Obsidian-compatible).
-- **Secrets in your prompt** → automatically forced to local Ollama. Cloud never sees them.
+- **Secrets in your prompt** → automatically forced to a local model. The cloud never sees them.
 - **No telemetry. Local-only.** All cost data stays on your machine.
 
-Configure via `.raven/.model.env` — raven-init writes it for you.
+Configure via `.raven/.model.env` — `raven-init` writes it for you.
 
 ---
 
@@ -60,10 +67,10 @@ Configure via `.raven/.model.env` — raven-init writes it for you.
 
 | Component | Count | What it does |
 |---|---|---|
-| Specialist skills | 61 | Andie v6.3 · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
+| Specialist skills | 61 | Andie · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
 | Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, missing architecture |
 | Slash commands | 14 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` `/raven-approve` `/raven-scaffold` `/raven-search` `/raven-sync` and more |
-| Engine scripts | 13 | cve-check · secret-scan · audit-log · emit-violation · db-guard · schema-guard · cve-prompt-guard · pr-gate · server · obsidian-log · session-start and more |
+| Engine scripts | 13 | cve-check · secret-scan · audit-log · emit-violation · db-guard · schema-guard · cve-prompt-guard · pr-gate · obsidian-log · session-start and more |
 | MCP server | 1 | `raven_status` · `raven_debug` · `raven_cve_check` · `raven_violation` · `raven_sync_libs` |
 
 ---
@@ -74,11 +81,10 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 | Optimisation | Saving |
 |---|---|
-| Andie v6.3 (−69% size, 200-word cap, Feynman recap) | −6,852 tok per session |
+| Andie (−69% size, 200-word cap, Feynman recap) | −6,852 tok per session |
 | db-router pure routing table | −2,560 tok per session |
 | ui-router trimmed | −1,564 tok per session |
 | agent-chaining trimmed | −1,686 tok per session |
-| `raven-skill-reminder` first-message-only | −61 tok × every message after msg 1 |
 | Obsidian → session-start continuity | ~80 tok of prior context, no cold start |
 
 **~57% reduction in skill token footprint vs v2.9.1. In a 20-message session: ~53% fewer context-tokens carried.**
@@ -87,8 +93,8 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 ## Relationship to giggsoinc/raven
 
-`raven-codex` is the **Codex / Copilot / multi-platform** variant.
-`giggsoinc/raven` is the **Codex native** variant.
+`raven-codex` is the **OpenAI Codex / Copilot / multi-platform** variant.
+`giggsoinc/raven` is the **IDE-native** variant.
 
 Both share the same skill set and guard agents. Skills, agents, and engine scripts are kept in sync.
 
@@ -96,6 +102,7 @@ Both share the same skill set and guard agents. Skills, agents, and engine scrip
 
 ## Docs
 
+- [Test environment guide](CODEX-TEST-GUIDE.md)
 - [Issues](https://github.com/giggsoinc/raven-codex/issues)
 
 ---

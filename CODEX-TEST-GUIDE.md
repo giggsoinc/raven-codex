@@ -142,7 +142,7 @@ Run raven_status
 ✅ manifest.json loaded
 ✅ stack declared
 ✅ secrets file present
-Version: 2.8
+Version: 4.1
 Mode: active
 ```
 
@@ -178,17 +178,19 @@ cat .raven/audit/audit.log
 
 ---
 
-## What's Different from Codex
+## Enforcement modes — Local vs CI
 
-| | Codex | Codex |
+Raven enforces the same rules at two points. Local mode catches issues before they leave your machine; CI mode is the backstop that no editor can skip.
+
+| | Local (pre-commit) | CI (PR gate) |
 |---|---|---|
-| Enforcement point | Pre-commit (before commit) | PR gate (before merge) |
-| Secret scan | On file save | On PR open |
-| CVE scan | On import detected | On PR open |
-| Setup command | `raven-setup` | `raven-codex-setup` |
-| Config dir | `.claude/` | `.raven-codex/` |
-| MCP connect | `claude mcp add` | Codex Settings → MCP |
+| Enforcement point | Before commit | Before merge |
+| Secret scan | On commit (staged diff) | On PR open (base diff) |
+| CVE scan | On import / dependency change | On PR open |
+| Setup command | `raven-codex-setup` | copy `raven-pr-gate.yml` + manifest |
+| Config | `.raven/` (manifest, audit) | `.raven/manifest.json` + repo secret `OPENAI_API_KEY` |
+| Connect | MCP via `config.toml` / `.mcp.json` | GitHub Actions status check |
 
 ---
 
-*Raven-Codex v2.8 — MIT — [github.com/giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex)*
+*Raven-Codex v4.1 — MIT — [github.com/giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex)*
