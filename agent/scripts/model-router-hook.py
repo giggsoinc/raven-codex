@@ -23,7 +23,11 @@ def _run_classifier(prompt: str, context: str = "") -> dict:
     Returns:
         {tier, score, reasons, model}
     """
-    router_script = Path(__file__).parent / "model-router.py"
+    here = Path(__file__).resolve().parent
+    router_script = here / "model-router.py"
+    if not router_script.exists():
+        # Repo layout: hook in agent/scripts/, classifier in scripts/
+        router_script = here.parent.parent / "scripts" / "model-router.py"
 
     if not router_script.exists():
         # Fallback to default if script not found
@@ -165,28 +169,25 @@ def main():
     )
 
     # Determine if specialist should spawn based on tier
-    spawn_specialist = should_spawn_specialist_agent(classification["tier"])
+    tier = classification["tier"]
+    model = classification["model"]
+    spawn_specialist = should_spawn_specialist_agent(tier)
 
-    # Output to hook interface
-    output = {
-        "hookSpecificOutput": {
-            "hookEventName": "UserPromptSubmit",
-            "additionalContext": {
-                "model_tier": classification["tier"],
-                "model_for_tier": classification["model"],
-                "classification_reasons": classification["reasons"],
-                "env_var": f"RAVEN_MODEL_TIER={classification['tier']}",
-                "spawn_specialist_agent": spawn_specialist,
-                "token_estimate": {
-                    "SIMPLE": "0.3K",
-                    "MEDIUM": "0.8K",
-                    "COMPLEX": "3K"
-                }.get(classification["tier"], "1K")
-            }
-        }
-    }
-
-    print(json.dumps(output))
+    # Plain-text emission (Codex injects stdout as context — no hook-JSON
+    # channel). FIRST line is the user-visible toaster: Raven never routes
+    # silently.
+    if tier == "LOCAL_ONLY":
+        print("🔒 Raven router · secrets detected → LOCAL_ONLY · "
+              "cloud calls blocked, local model only")
+        print(f"RAVEN_MODEL_TIER={tier}")
+        print(f"Secrets in context — run the local model ({model}) or proceed "
+              "in-context without spawning.")
+    else:
+        cats = sorted({r.split(":", 1)[0] for r in classification["reasons"]})[:2]
+        print(f"🔀 Raven router · {tier} → {model} · {', '.join(cats) or 'baseline'}")
+        print(f"RAVEN_MODEL_TIER={tier}")
+        print(f"spawn_specialist_agent={str(spawn_specialist).lower()} · "
+              f"route specialist work to {model} for this prompt.")
 
 
 if __name__ == "__main__":
