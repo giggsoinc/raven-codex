@@ -58,6 +58,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Tests: tests/test_skill_gate.py — blocked/allowed/stale/shadow/override/
   <100ms, all green.
 
+### Added — tokenomics documentation + packaging
+
+- docs/TOKENOMICS.md: measured per-message cost of the discipline layer
+  (gate 0 tok out-of-band; one router max ~120–145 tok; model toaster ~55;
+  session banner ~455 once; skill loads 1.5–3.6k one-time). Regression
+  signal: overhead >175 tok/prompt means a router is double-firing.
+- README: 🪙 Tokenomics section; Docs index expanded; MCP tool list updated
+  (raven_mark_skill, raven_gate_check); skill-routing gate row added.
+- docs/Agent_token_architecture_business.html (owner view) and
+  docs/Agent_token_architecture_tech.html (engineer view; live-polls
+  dashboard-server /metrics.json with a >175 tok/call alarm).
+- make-plugin.sh: bundles docs (SKILL-GATE, TOKENOMICS, architecture pages,
+  cursor-hooks example) into the plugin zip.
+
 ### Fixed — DOMAIN_SKILL_MAP precision (false-positive Oracle)
 
 - Oracle entry no longer claims `**/*.sql` — a stray migration/SQLite-schema/

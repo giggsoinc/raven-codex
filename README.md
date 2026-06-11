@@ -68,10 +68,11 @@ Configure via `.raven/.model.env` — `raven-init` writes it for you.
 | Component | Count | What it does |
 |---|---|---|
 | Specialist skills | 61 | Andie · Andie Jr · agent-chaining · ui-router · DB · cloud · security · Oracle (6 specialists) · Salesforce · Odoo · AI/ML · Kafka · K8s · Terraform · FastAPI · log management and more |
-| Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, missing architecture |
+| Guard agents | 10 | Fire when their conditions match — block inline SQL, secrets, undeclared stacks, missing architecture |
+| Skill-routing gate | 1 | `raven-skill-gate` — commits blocked until the routed specialist actually ran ([docs](docs/SKILL-GATE.md)) |
 | Slash commands | 14 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` `/raven-approve` `/raven-scaffold` `/raven-search` `/raven-sync` and more |
 | Engine scripts | 13 | cve-check · secret-scan · audit-log · emit-violation · db-guard · schema-guard · cve-prompt-guard · pr-gate · obsidian-log · session-start and more |
-| MCP server | 1 | `raven_status` · `raven_debug` · `raven_cve_check` · `raven_violation` · `raven_sync_libs` |
+| MCP server | 1 | `raven_status` · `raven_debug` · `raven_cve_check` · `raven_violation` · `raven_sync_libs` · `raven_mark_skill` · `raven_gate_check` |
 
 ---
 
@@ -120,6 +121,10 @@ Both share the same skill set and guard agents. Skills, agents, and engine scrip
 
 ## Docs
 
+- [Tokenomics — what Raven costs per message](docs/TOKENOMICS.md)
+- [Skill-routing gate — design, modes, Cursor/Codex boundaries](docs/SKILL-GATE.md)
+- [Token architecture — business view](docs/Agent_token_architecture_business.html) · [tech view (live metrics)](docs/Agent_token_architecture_tech.html)
+- [Cursor hook example (deny `git commit` when gate blocks)](docs/cursor-hooks.example.json)
 - [Test environment guide](CODEX-TEST-GUIDE.md)
 - [Issues](https://github.com/giggsoinc/raven-codex/issues)
 
