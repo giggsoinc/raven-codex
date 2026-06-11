@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raven Token Architecture — Business View</title>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#171a23; --panel2:#1e2230; --line:#2c3140;
+    --text:#e6e9f0; --muted:#9aa3b5; --accent:#7c9cff; --green:#4ade80;
+    --amber:#fbbf24; --red:#f87171; --teal:#2dd4bf;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:40px 20px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:28px;margin-bottom:6px}
+  h2{font-size:20px;margin:36px 0 14px;color:var(--accent)}
+  .sub{color:var(--muted);margin-bottom:28px}
+  .headline{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:10px;padding:18px 22px;font-size:18px;margin-bottom:8px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:12px;letter-spacing:.05em}
+  .free{color:var(--green);font-weight:700}
+  .cheap{color:var(--teal);font-weight:600}
+  .once{color:var(--amber);font-weight:600}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .card .big{font-size:30px;font-weight:800}
+  .card .lbl{color:var(--muted);font-size:13px;margin-top:4px}
+  svg{width:100%;height:auto;display:block}
+  .foot{color:var(--muted);font-size:13px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+  code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;color:var(--teal)}
+  ul{padding-left:22px}
+  li{margin:6px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🪶 Raven Token Architecture — Business View</h1>
+<p class="sub">What the AI-discipline layer costs per message, where the money goes, and how to see it. (Companion engineer view: <a style="color:var(--accent)" href="Agent_token_architecture_tech.html">Agent_token_architecture_tech.html</a>)</p>
+
+<div class="headline">💡 <b>Enforcement is free. Routing is cheap. Skills are the spend — paid once, only when used.</b></div>
+
+<div class="cards">
+  <div class="card"><div class="big free">$0.00</div><div class="lbl">Skill-gate enforcement per message — runs outside the conversation</div></div>
+  <div class="card"><div class="big cheap">~$0.0004</div><div class="lbl">Worst-case routing overhead per prompt (~175 tokens)</div></div>
+  <div class="card"><div class="big once">~$0.01</div><div class="lbl">Full specialist session, including the one-time skill load</div></div>
+</div>
+
+<h2>How a message flows — and what each step costs</h2>
+<div class="panel">
+<svg viewBox="0 0 940 360" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L8,4.5 L0,9" fill="none" stroke="#9aa3b5" stroke-width="1.5"/>
+    </marker>
+  </defs>
+  <!-- lane labels -->
+  <text x="20" y="30" fill="#9aa3b5" font-size="12" letter-spacing="2">CONVERSATION (costs tokens)</text>
+  <text x="20" y="270" fill="#9aa3b5" font-size="12" letter-spacing="2">ENFORCEMENT (costs nothing)</text>
+  <line x1="20" y1="240" x2="920" y2="240" stroke="#2c3140" stroke-dasharray="5 5"/>
+
+  <!-- Prompt -->
+  <rect x="20" y="60" width="150" height="70" rx="10" fill="#1e2230" stroke="#7c9cff"/>
+  <text x="95" y="90" fill="#e6e9f0" font-size="15" text-anchor="middle" font-weight="700">Your prompt</text>
+  <text x="95" y="112" fill="#9aa3b5" font-size="12" text-anchor="middle">the work you pay for</text>
+
+  <!-- Router -->
+  <rect x="220" y="60" width="180" height="70" rx="10" fill="#1e2230" stroke="#2dd4bf"/>
+  <text x="310" y="85" fill="#e6e9f0" font-size="15" text-anchor="middle" font-weight="700">Raven router</text>
+  <text x="310" y="105" fill="#2dd4bf" font-size="12" text-anchor="middle">one nudge max · ~120–145 tok</text>
+  <text x="310" y="121" fill="#9aa3b5" font-size="11" text-anchor="middle">simple prompts: 0 tok</text>
+
+  <!-- Specialist -->
+  <rect x="450" y="60" width="200" height="70" rx="10" fill="#1e2230" stroke="#fbbf24"/>
+  <text x="550" y="85" fill="#e6e9f0" font-size="15" text-anchor="middle" font-weight="700">Specialist skill</text>
+  <text x="550" y="105" fill="#fbbf24" font-size="12" text-anchor="middle">one-time load · 1.5–3.6k tok</text>
+  <text x="550" y="121" fill="#9aa3b5" font-size="11" text-anchor="middle">only when invoked</text>
+
+  <!-- Work product -->
+  <rect x="700" y="60" width="220" height="70" rx="10" fill="#1e2230" stroke="#4ade80"/>
+  <text x="810" y="85" fill="#e6e9f0" font-size="15" text-anchor="middle" font-weight="700">Disciplined output</text>
+  <text x="810" y="105" fill="#4ade80" font-size="12" text-anchor="middle">root cause · plan · audit trail</text>
+  <text x="810" y="121" fill="#9aa3b5" font-size="11" text-anchor="middle">what the spend buys</text>
+
+  <line x1="170" y1="95" x2="212" y2="95" stroke="#9aa3b5" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="400" y1="95" x2="442" y2="95" stroke="#9aa3b5" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="650" y1="95" x2="692" y2="95" stroke="#9aa3b5" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- marker drop -->
+  <line x1="550" y1="130" x2="550" y2="285" stroke="#9aa3b5" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arr)"/>
+  <text x="562" y="190" fill="#9aa3b5" font-size="11">proof-of-work marker (free)</text>
+
+  <!-- Gate -->
+  <rect x="450" y="290" width="200" height="55" rx="10" fill="#171a23" stroke="#4ade80"/>
+  <text x="550" y="313" fill="#e6e9f0" font-size="14" text-anchor="middle" font-weight="700">🚧 Skill gate</text>
+  <text x="550" y="332" fill="#4ade80" font-size="12" text-anchor="middle">0 tokens — checks at commit</text>
+
+  <!-- Commit -->
+  <rect x="720" y="290" width="200" height="55" rx="10" fill="#171a23" stroke="#7c9cff"/>
+  <text x="820" y="313" fill="#e6e9f0" font-size="14" text-anchor="middle" font-weight="700">✅ Commit</text>
+  <text x="820" y="332" fill="#9aa3b5" font-size="12" text-anchor="middle">blocked unless specialist ran</text>
+  <line x1="650" y1="317" x2="712" y2="317" stroke="#9aa3b5" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
+</div>
+
+<h2>The cost table</h2>
+<div class="panel">
+<table>
+  <tr><th>Component</th><th>Cost</th><th>When you pay it</th></tr>
+  <tr><td>Skill-routing gate (commit blocker)</td><td class="free">FREE — 0 tokens</td><td>never enters the conversation</td></tr>
+  <tr><td>Router nudge (one of two, never both)</td><td class="cheap">~120–145 tokens</td><td>only when a prompt needs routing</td></tr>
+  <tr><td>Model-tier toaster</td><td class="cheap">~55 tokens</td><td>each prompt, if enabled</td></tr>
+  <tr><td>Session banner</td><td class="once">~455 tokens</td><td>once per session</td></tr>
+  <tr><td>Specialist skill (Andie / Andie Jr)</td><td class="once">~1.5k–3.6k tokens</td><td>once, only when invoked</td></tr>
+</table>
+</div>
+
+<h2>Why the gate exists, in money terms</h2>
+<div class="panel">
+<p>A specialist session is a ~$0.01 investment. Before the gate, the model could take the ~$0.01 skill load <i>or skip it</i> and free-style — wasting the routing nudge and producing undisciplined output. The gate makes the investment stick: <b>code cannot reach a commit unless the specialist actually ran.</b> You pay nothing extra for that guarantee.</p>
+</div>
+
+<h2>How to monitor (no engineering required)</h2>
+<div class="panel">
+<ul>
+  <li><b>Live dashboard</b> — have your engineer run <code>python3 scripts/dashboard-server.py</code>, then open <code>http://127.0.0.1:9787</code>. Raven overhead and your work are metered in separate buckets.</li>
+  <li><b>The one number to watch</b> — "Raven overhead per prompt." Healthy: under ~175 tokens. If it climbs, routing is double-firing — a defect, not a fee.</li>
+  <li><b>Session receipts</b> — every session writes a summary to <code>~/RavenVault/sessions/</code> (opens in Obsidian).</li>
+  <li><b>Discipline audit</b> — gate overrides are never silent; each one is logged with a countdown in <code>docs/observations/security_log.md</code>.</li>
+</ul>
+</div>
+
+<p class="foot">Raven-Codex · figures measured on this repository at ~4 characters/token · pricing example uses gpt-4o input (~$2.50/M). No telemetry — all numbers stay on your machine. Full note: docs/TOKENOMICS.md</p>
+</div>
+</body>
+</html>

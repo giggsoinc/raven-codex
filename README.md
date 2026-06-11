@@ -91,6 +91,24 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 ---
 
+## 🪙 Tokenomics — what Raven costs per message
+
+**Enforcement is free. Routing is cheap. Skills are the spend — paid once, only when invoked.**
+
+| Layer | Per-prompt tokens | When |
+|---|---|---|
+| Skill-routing gate (`raven-skill-gate`) | **0** | out-of-band: pre-commit exit code, Cursor shell-deny, MCP — never injected context |
+| Router emission (triage **or** architect — mutually exclusive, never both) | ~120–145 | only when routing fires; data-only / trivial prompts inject **0** |
+| Model-router toaster (`--hook`) | ~55 | per prompt, if wired |
+| Session-start banner | ~455 | once per session |
+| Specialist skill load (andie ~3.6k · andie-jr ~1.5k) | one-time | only on invocation; one mode file, never all four |
+
+Worst case ≈ 175 tokens/prompt (~$0.0004 on gpt-4o); typical ≈ 55; many prompts 0. Overhead is metered separately from your work in `.raven/.model-session.json` (`raven_overhead` vs `user_work`) — watch it live at `http://127.0.0.1:9787` via `scripts/dashboard-server.py`.
+
+Full note: [docs/TOKENOMICS.md](docs/TOKENOMICS.md) · Diagrams: [business view](docs/Agent_token_architecture_business.html) · [tech view](docs/Agent_token_architecture_tech.html)
+
+---
+
 ## Relationship to giggsoinc/raven
 
 `raven-codex` is the **OpenAI Codex / Copilot / multi-platform** variant.
