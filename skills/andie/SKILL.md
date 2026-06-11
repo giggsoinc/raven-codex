@@ -23,6 +23,19 @@ RULE: The FIRST line of Andie's FIRST response — whether auto-routed by Raven,
 - NEVER claim to be "running in the background." Andie is front-and-center or it is not running.
 - Same rule applies on every handoff: when Andie hands to `andie-jr` or a specialist, the handoff line names the target and the reason in one sentence.
 
+## Gate Marker (First Step — Proof of Invocation)
+
+RULE: Immediately after the toaster, record the invocation marker. The script
+stamps the timestamp — this is what unblocks raven-skill-gate at commit time:
+
+```
+python3 ~/.raven-codex/scripts/raven-mark-skill.py andie
+```
+
+If shell access is unavailable, call the MCP tool `raven_mark_skill` with
+`{"skill": "andie"}`. Without a fresh marker, commits to code files are
+warned (soft mode) or blocked (hard mode).
+
 ## Gate Discipline (v6.4)
 
 Applies to every gate below:

@@ -55,9 +55,44 @@ RAVEN_AUDIT_KEY=
 OPENAI_API_KEY=$OPENAI_KEY
 EOF
 
+# ── Skill-routing gate: state dir + default policy + git pre-commit hook ──
+mkdir -p "$PROJECT_DIR/.raven/state"
+if [[ ! -f "$PROJECT_DIR/.raven/state/routing-policy.json" ]]; then
+cat > "$PROJECT_DIR/.raven/state/routing-policy.json" <<EOF
+{
+  "mode": "soft",
+  "soft_until": "$(python3 -c 'from datetime import datetime,timedelta,timezone; print((datetime.now(timezone.utc)+timedelta(days=7)).isoformat())')",
+  "gated_skills": ["andie", "andie-jr"],
+  "scope": ["*.py", "src/**", "scripts/**", "*.js", "*.ts", "*.go", "*.java", "*.rs", "*.sql", "*.tf"],
+  "freshness_hours": 4,
+  "override_uses": 5
+}
+EOF
+fi
+
+if [[ -d "$PROJECT_DIR/.git" ]]; then
+    HOOK="$PROJECT_DIR/.git/hooks/pre-commit"
+    if ! grep -q "raven-skill-gate" "$HOOK" 2>/dev/null; then
+        [[ -f "$HOOK" ]] || echo "#!/bin/sh" > "$HOOK"
+        cat >> "$HOOK" <<EOF
+# Raven skill-routing gate — blocks commits until a specialist marker exists
+python3 "$RAVEN_DIR/scripts/raven-skill-gate.py" --event commit || exit 2
+EOF
+        chmod +x "$HOOK"
+        echo "✅ git pre-commit gate installed (raven-skill-gate)"
+    fi
+fi
+
+# Cursor wiring (optional): hooks live in ~/.cursor/hooks.json
+if [[ -d "$HOME/.cursor" ]]; then
+    echo "ℹ️  Cursor detected — merge docs/cursor-hooks.example.json into ~/.cursor/hooks.json"
+    echo "   to deny 'git commit' from agent shells when the gate would block."
+fi
+
 echo ""
 echo "✅ manifest.json written to .raven/"
 echo "✅ Audit log directory created"
+echo "✅ Skill-routing gate: mode soft for 7 days, then hard (edit .raven/state/routing-policy.json)"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Next: Connect Raven MCP server to Codex"

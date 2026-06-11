@@ -54,6 +54,8 @@ for script in \
     triage-router.py \
     architect-router.py \
     router_common.py \
+    raven-mark-skill.py \
+    raven-skill-gate.py \
     log-overhead.py \
     model-router.py \
     token-guard.py \

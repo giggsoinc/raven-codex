@@ -131,11 +131,12 @@ def _emit_andie_jr(reason: str = "brownfield repo detected") -> None:
     """Emit toaster (first line) + [ANDIE-JR REQUIRED] injection."""
     emission = (
         f"🪶 Raven → andie-jr · {reason} · debug flow: triage → root cause → fix\n"
-        "[ANDIE-JR REQUIRED] Brownfield repo detected. MANDATORY: invoke "
-        "`andie-jr` skill BEFORE any diagnosis, file read, bash command, or "
-        "response. Andie-jr structures the debug flow: problem → root cause → "
-        "fix → why → audit note. Surface the first toaster line to the user "
-        "verbatim — Raven never routes silently.\n"
+        "[ANDIE-JR REQUIRED] Brownfield repo detected. Invoke `andie-jr` "
+        "before diagnosing or editing; its first step records the invocation "
+        "marker. This routing is ENFORCED at commit time by raven-skill-gate: "
+        "without a fresh specialist marker, commits to code files are warned "
+        "(soft mode) or blocked (hard mode). Surface the first toaster line "
+        "to the user verbatim — Raven never routes silently.\n"
     )
     sys.stdout.write(emission)
     log_overhead("triage-router", emission)
@@ -145,11 +146,12 @@ def _emit_andie(reason: str = "greenfield project detected") -> None:
     """Emit toaster (first line) + [ANDIE REQUIRED] injection."""
     emission = (
         f"🪶 Raven → andie · {reason} · planning flow: problem → angles → plan\n"
-        "[ANDIE REQUIRED] Greenfield project detected. MANDATORY: invoke "
-        "`andie` skill BEFORE any coding. Andie structures planning: problem → "
-        "angles → decisions → plan. Then /andie-jr for implementation. Surface "
-        "the first toaster line to the user verbatim — Raven never routes "
-        "silently.\n"
+        "[ANDIE REQUIRED] Greenfield project detected. Invoke `andie` before "
+        "coding; its first step records the invocation marker. This routing "
+        "is ENFORCED at commit time by raven-skill-gate: without a fresh "
+        "specialist marker, commits to code files are warned (soft mode) or "
+        "blocked (hard mode). Surface the first toaster line to the user "
+        "verbatim — Raven never routes silently.\n"
     )
     sys.stdout.write(emission)
     log_overhead("triage-router", emission)

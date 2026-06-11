@@ -404,6 +404,25 @@ def write_model_env(providers: list[dict], routing: dict):
             gitignore.write_text(content.rstrip() + "\n.model.env\n")
 
 
+def _gate_mode() -> str | None:
+    """Read the skill-routing gate mode for the banner. None when no policy
+    exists (gate not installed in this project)."""
+    policy_path = Path(".raven/state/routing-policy.json")
+    if not policy_path.exists():
+        return None
+    try:
+        from datetime import datetime, timezone
+        policy = json.loads(policy_path.read_text())
+        mode = policy.get("mode", "soft")
+        soft_until = policy.get("soft_until")
+        if mode == "soft" and soft_until:
+            if datetime.now(timezone.utc) > datetime.fromisoformat(soft_until):
+                mode = "hard"
+        return mode
+    except Exception:
+        return None
+
+
 # ── Format output ──────────────────────────────────────────────────────────────
 
 def format_context(project: dict, providers: list[dict], routing: dict, model_env_written: bool, domain_skill: tuple = (None, None, None)) -> str:
@@ -533,6 +552,13 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         else:
             lines.append("           [domain task]  → matching specialist (see manifest.stack)")
     lines.append("")
+    gate_mode = _gate_mode()
+    if gate_mode:
+        lines.append(f"🚧 Skill routing is enforced at commit time by raven-skill-gate (mode: {gate_mode}).")
+        lines.append("   Commits to code files are blocked (hard) or warned (soft) until a")
+        lines.append("   specialist marker exists — gated skills record one as their first step.")
+        lines.append("   Honest scope: the gate guarantees the skill RAN, not that its output was used well.")
+        lines.append("")
     lines.append("DO NOT skip the greeting. DO NOT route before greeting. DO NOT give")
     lines.append("install instructions — Raven IS installed.")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")

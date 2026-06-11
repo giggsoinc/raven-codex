@@ -144,10 +144,12 @@ def main() -> None:
         f"🪶 Raven → andie · {why} · triad plan before code\n"
         "[ANDIE REQUIRED] This prompt is architecture-class — it involves "
         "design decisions, multi-component scope, or strategic tradeoffs. "
-        "MANDATORY: invoke `andie` skill BEFORE responding. Andie runs the "
-        "Functional/Technical/Data triad, HITL-gates proposals, and hands off "
-        "a crisp plan. Surface the first toaster line to the user verbatim — "
-        "Raven never routes silently. Do not free-style the design.\n"
+        "Invoke `andie` before responding; its first step records the "
+        "invocation marker. This routing is ENFORCED at commit time by "
+        "raven-skill-gate: without a fresh specialist marker, commits to code "
+        "files are warned (soft mode) or blocked (hard mode). Surface the "
+        "first toaster line to the user verbatim — Raven never routes "
+        "silently. Do not free-style the design.\n"
     )
     sys.stdout.write(emission)
     log_overhead("architect-router", emission)

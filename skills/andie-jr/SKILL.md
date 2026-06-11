@@ -15,6 +15,19 @@ RULE: The FIRST line of Andie Jr's FIRST response — whether auto-routed by Rav
 
 NEVER claim to be "running in the background." Andie Jr is front-and-center or it is not running.
 
+## Gate Marker (First Step — Proof of Invocation)
+
+RULE: Immediately after the toaster, record the invocation marker. The script
+stamps the timestamp — this is what unblocks raven-skill-gate at commit time:
+
+```
+python3 ~/.raven-codex/scripts/raven-mark-skill.py andie-jr
+```
+
+If shell access is unavailable, call the MCP tool `raven_mark_skill` with
+`{"skill": "andie-jr"}`. Without a fresh marker, commits to code files are
+warned (soft mode) or blocked (hard mode).
+
 Andie Jr is the fast bug-fix path. It is for brownfield debugging only: broken behavior, errors, regressions, stack traces, pasted logs, failed tests, import/dependency failures, performance cliffs, auth failures, API failures, SQL failures, and "help me fix this."
 
 If the work is architecture, strategy, planning, product choice, or new design, hand back to Andie.

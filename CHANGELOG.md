@@ -32,6 +32,32 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
   `--hook` flag emits a 🔀/🔒 toaster + RAVEN_MODEL_TIER guidance; non-privacy
   tiers flag `cloud_fallback` when applicable.
 
+### Added — deterministic skill-routing gate (raven-skill-gate)
+
+- Specialist routing is no longer advisory-only. Gated skills (andie,
+  andie-jr) record a script-stamped invocation marker as their first step
+  (scripts/raven-mark-skill.py → .raven/state/skill-invocations.jsonl, also
+  exposed as MCP tool `raven_mark_skill`).
+- scripts/raven-skill-gate.py enforces the marker at the boundaries Codex
+  hosts actually honor: git pre-commit (installed by raven-codex-setup.sh),
+  Cursor `beforeShellExecution` (denies `git commit`; see
+  docs/cursor-hooks.example.json), and the `raven_gate_check` MCP tool.
+  Codex CLI has no pre-tool hooks and Cursor has no blocking pre-edit event,
+  so the hard stop lives at the commit boundary; edit-time violations are
+  logged (docs/observations/security_log.md).
+- Modes shadow/soft/hard via .raven/state/routing-policy.json with scope
+  globs + freshness window (session start, fallback 4h). New installs start
+  soft for 7 days, then escalate to hard (architecture-guard grace pattern).
+- Escape hatch: `touch .raven/state/gate-override` allows the next N actions,
+  every use logged with a countdown — never silent.
+- Router/banner advisory text rewritten to state the real contract
+  ("enforced at commit time by raven-skill-gate") instead of unenforceable
+  "MANDATORY before any file read".
+- Honest scope documented (docs/SKILL-GATE.md): the gate guarantees the
+  skill RAN, not that its output was used well.
+- Tests: tests/test_skill_gate.py — blocked/allowed/stale/shadow/override/
+  <100ms, all green.
+
 ### Fixed — DOMAIN_SKILL_MAP precision (false-positive Oracle)
 
 - Oracle entry no longer claims `**/*.sql` — a stray migration/SQLite-schema/
