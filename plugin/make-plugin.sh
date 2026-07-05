@@ -53,6 +53,9 @@ for script in \
     session-start.py \
     triage-router.py \
     architect-router.py \
+    router_common.py \
+    raven-mark-skill.py \
+    raven-skill-gate.py \
     log-overhead.py \
     model-router.py \
     token-guard.py \
@@ -100,6 +103,16 @@ if [[ -f "$REPO_DIR/config.toml.example" ]]; then
     cp "$REPO_DIR/config.toml.example" "$TMP_DIR/config.toml.example"
     echo "  ✅ config.toml.example (Codex CLI)"
 fi
+
+# ── Docs (gate contract + tokenomics + architecture pages) ──
+mkdir -p "$TMP_DIR/docs"
+for doc in SKILL-GATE.md TOKENOMICS.md cursor-hooks.example.json \
+           Agent_token_architecture_business.html Agent_token_architecture_tech.html; do
+    if [[ -f "$REPO_DIR/docs/$doc" ]]; then
+        cp "$REPO_DIR/docs/$doc" "$TMP_DIR/docs/$doc"
+        echo "  ✅ docs/$doc"
+    fi
+done
 
 # ── .model.env.template (cost routing config) ──
 cp "$REPO_DIR/.model.env.template" "$TMP_DIR/.model.env.template" 2>/dev/null && echo "  ✅ .model.env.template"

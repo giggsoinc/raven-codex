@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 """
-Model Router v1 — Dynamic Model Routing for Raven Enterprise
+Model Router v2 — Dynamic Model Routing for Raven-Codex
 
 Classifies user queries and context into tiers (SIMPLE, MEDIUM, COMPLEX, LOCAL_ONLY)
 based on signal detection, and outputs routing decision to .raven/.model-session.json.
 
-Usage:
-  - Library: from model_router import classify
-    tier, score, reasons, model = classify(prompt, context)
+LOCAL_ONLY is a HARD FLOOR: when secrets are detected, resolve_model() never
+returns a cloud model — the only options are the configured local model
+(ollama) or proceeding in-context without spawning anything.
 
-  - CLI: python3 model-router.py --prompt "..." [--context "{...}"]
+Usage:
+  - Library: from model_router import classify, resolve_model
+    tier, score, reasons, model = classify(prompt, context)
+    cloud_param, model = resolve_model(tier)   # cloud_param is None ⇒ local only
+
+  - CLI: python3 model-router.py --prompt "..." [--context "{...}"] [--hook]
+    --hook emits a plain-text user-visible toaster as the FIRST line plus
+    RAVEN_MODEL_TIER guidance (Codex injects stdout as context — there is no
+    hook-JSON channel).
 """
 
 import argparse
@@ -202,6 +210,37 @@ def _load_model_env() -> Dict[str, str]:
     return models
 
 
+_LOCAL_PROVIDERS = {"ollama", "local", "lmstudio", "llamacpp", "vllm"}
+_DEFAULT_LOCAL = "ollama/dolphin-mistral"
+
+
+def _is_local_model(model: str) -> bool:
+    """True if the provider prefix is a local runtime (never leaves the box)."""
+    return model.split("/", 1)[0].lower() in _LOCAL_PROVIDERS
+
+
+def resolve_model(tier: str) -> Tuple[Optional[str], str]:
+    """Resolve a tier to (cloud_param, model).
+
+    LOCAL_ONLY is a hard floor: ALWAYS returns (None, <local model>) — never a
+    cloud param, even if .model.env misconfigures the tier to a cloud model.
+    (The old behavior of silently remapping a privacy tier to a small cloud
+    model would exfiltrate secret-laden context.)
+
+    Non-privacy tiers return (model, model) for cloud models. A non-privacy
+    tier pointed at a local model returns (None, <local model>) — callers may
+    fall back to a cloud default but must flag it `cloud_fallback`.
+    """
+    models = _load_model_env()
+    configured = models.get(tier, _DEFAULT_LOCAL)
+    if tier == "LOCAL_ONLY":
+        local = configured if _is_local_model(configured) else _DEFAULT_LOCAL
+        return None, local
+    if _is_local_model(configured):
+        return None, configured
+    return configured, configured
+
+
 def classify(
     prompt: str,
     context: str = ""
@@ -216,9 +255,10 @@ def classify(
     Returns:
         (tier, score, reasons, model_string)
     """
-    # Force LOCAL_ONLY if secrets detected
+    # Force LOCAL_ONLY if secrets detected — hard floor, never a cloud model
     if _detect_secrets(context):
-        return "LOCAL_ONLY", 999, ["secrets_in_context"], "local_only"
+        _, local_model = resolve_model("LOCAL_ONLY")
+        return "LOCAL_ONLY", 999, ["secrets_in_context"], local_model
 
     # Score the query
     score, reasons = _score_signal(prompt, context)
@@ -315,6 +355,9 @@ def main():
     parser.add_argument("--source", default="user_work",
                         choices=["user_work", "raven_overhead"],
                         help="Attribution bucket: user_work (default) or raven_overhead")
+    parser.add_argument("--hook", action="store_true",
+                        help="Emit plain-text toaster (first line) + RAVEN_MODEL_TIER "
+                             "context instead of JSON — for Codex prompt injection")
 
     args = parser.parse_args()
 
@@ -328,16 +371,42 @@ def main():
 
     # Classify
     tier, score, reasons, model = classify(args.prompt, args.context)
+    cloud_param, resolved = resolve_model(tier)
 
     result = {
         "tier": tier,
         "score": score,
         "reasons": reasons,
-        "model": model,
+        "model": resolved,
         "source": args.source,
     }
+    if tier == "LOCAL_ONLY":
+        result["local_only"] = True
+        result["guidance"] = (
+            "Secrets in context — cloud calls are blocked. Run the local model "
+            f"({resolved} via ollama) or proceed in-context without spawning.")
+    elif cloud_param is None:
+        # Non-privacy tier configured to a local model; cloud fallback allowed
+        # but must be visible.
+        result["cloud_fallback"] = True
 
-    print(json.dumps(result, indent=2))
+    if args.hook:
+        # Plain-text emission: toaster first line (user-visible), then model
+        # guidance for the session. Raven never routes silently.
+        if tier == "LOCAL_ONLY":
+            toast = ("🔒 Raven router · secrets detected → LOCAL_ONLY · "
+                     "cloud calls blocked, local model only")
+        else:
+            cats = sorted({r.split(":", 1)[0] for r in reasons})[:2]
+            toast = f"🔀 Raven router · {tier} → {resolved} · {', '.join(cats) or 'baseline'}"
+        print(toast)
+        print(f"RAVEN_MODEL_TIER={tier}")
+        if tier == "LOCAL_ONLY":
+            print(result["guidance"])
+        else:
+            print(f"Route subagent/specialist work to {resolved} for this prompt.")
+    else:
+        print(json.dumps(result, indent=2))
 
     # Optionally write to session file
     if args.write_json:

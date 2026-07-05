@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Raven — Common Routing Logic (v4.1)
+Raven — Common Routing Logic (v4.2)
 
 Replaces regex-based routing with simple state-based detection.
 
@@ -66,6 +66,22 @@ def is_data_only_question(prompt: str) -> bool:
     has_decision = any(ind in prompt_lower for ind in decision_indicators)
 
     return has_data_keyword and not has_code_change and not has_decision
+
+
+def force_intent(prompt: str):
+    """Explicit force overrides: '/andie-jr' or '/andie' at prompt start.
+
+    Returns "andie-jr", "andie", or None. Force is exclusive — the matching
+    router emits, the other stays silent.
+    """
+    if not prompt:
+        return None
+    prompt_lower = prompt.strip().lower()
+    if prompt_lower.startswith("/andie-jr"):
+        return "andie-jr"
+    if prompt_lower.startswith("/andie"):
+        return "andie"
+    return None
 
 
 def route_prompt(prompt: str, repo_path: str = ".") -> str:

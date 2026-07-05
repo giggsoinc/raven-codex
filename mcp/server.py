@@ -73,6 +73,15 @@ TOOLS = [
      "inputSchema": _obj({"type": {"type": "string"},
                           "severity": {"type": "string", "enum": ["P1", "P2", "P3"]},
                           "detail": {"type": "string"}}, ["type", "severity", "detail"])},
+    {"name": "raven_mark_skill", "description": "Record that a gated specialist skill "
+     "(e.g. andie, andie-jr) has been invoked this session. Gated skills MUST call this "
+     "as their first step — the script stamps the timestamp.",
+     "inputSchema": _obj({"skill": {"type": "string", "description": "Skill name, e.g. andie-jr"}}, ["skill"])},
+    {"name": "raven_gate_check", "description": "Check the skill-routing gate: returns ALLOW "
+     "or the BLOCKED message if no fresh specialist marker exists. Commits also enforce this "
+     "via the git pre-commit hook.",
+     "inputSchema": _obj({"files": {"type": "array", "items": {"type": "string"},
+                                    "description": "Files about to be modified (optional)"}})},
 ]
 
 
@@ -118,6 +127,18 @@ def _call(name: str, args: dict) -> dict:
                                              "--severity", args.get("severity", "P3"),
                                              "--detail", args.get("detail", "")])
         return _text("Violation emitted" if r.get("returncode") == 0 else r.get("stderr", ""))
+    if name == "raven_mark_skill":
+        r = run_script("raven-mark-skill.py", [args.get("skill", "")])
+        return _text(r.get("stdout", "") or r.get("stderr", ""))
+    if name == "raven_gate_check":
+        gate_args = ["--event", "edit"]
+        files = args.get("files") or []
+        if files:
+            gate_args += ["--file"] + [str(f) for f in files]
+        r = run_script("raven-skill-gate.py", gate_args)
+        if r.get("returncode") == 2:
+            return _text(r.get("stderr", "BLOCKED by raven-skill-gate"))
+        return _text("ALLOW" + (("\n" + r["stderr"]) if r.get("stderr") else ""))
     return _text(f"Unknown tool: {name}")
 
 
