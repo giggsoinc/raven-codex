@@ -13,6 +13,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+VERSION_FILE = Path(__file__).resolve().parent.parent / "VERSION"
+
+
+def raven_version() -> str:
+    """Return the packaged Raven version."""
+    try:
+        return VERSION_FILE.read_text().strip() or "unknown"
+    except OSError:
+        return "unknown"
+
 
 def send(obj: dict) -> None:
     """Write one JSON-RPC message to stdout and flush."""
@@ -30,9 +40,18 @@ def find_scripts_dir():
     """Locate the Raven scripts dir (project-local, bundled, or installed)."""
     cwd = Path(os.getcwd())
     here = Path(os.path.dirname(__file__))
-    for candidate in [cwd / ".raven" / "scripts", cwd / ".codex" / "scripts",
-                      here.parent / "scripts", here,
-                      Path.home() / ".raven-codex" / "scripts", Path.home() / ".raven" / "scripts"]:
+    plugin_root = os.environ.get("PLUGIN_ROOT") or os.environ.get("CODEX_PLUGIN_ROOT")
+    candidates = [
+        cwd / ".raven" / "scripts",
+        cwd / ".codex" / "scripts",
+        here.parent / "scripts",
+        here,
+        Path.home() / ".raven-codex" / "scripts",
+        Path.home() / ".raven" / "scripts",
+    ]
+    if plugin_root:
+        candidates.insert(0, Path(plugin_root) / "scripts")
+    for candidate in candidates:
         if candidate.exists() and (candidate / "cve-check.py").exists():
             return candidate
     return None
@@ -145,8 +164,16 @@ def _call(name: str, args: dict) -> dict:
 def handle(method: str, params: dict) -> dict:
     """Route an MCP method to its handler."""
     if method == "initialize":
-        return {"protocolVersion": "2024-11-05", "capabilities": {"tools": {}},
-                "serverInfo": {"name": "raven", "version": "4.1.0"}}
+        return {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {"tools": {}},
+            "serverInfo": {"name": "raven", "version": raven_version()},
+            "instructions": (
+                "Raven enforces local engineering discipline through MCP tools and Codex hooks. "
+                "Use raven_cve_check before adding dependencies, raven_debug for health, and "
+                "treat missing manifests as first-run guidance rather than a hard stop."
+            ),
+        }
     if method == "tools/list":
         return {"tools": TOOLS}
     if method == "tools/call":

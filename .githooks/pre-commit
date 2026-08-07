@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+echo "Raven pre-commit: repo hook active"
+
+if [[ -f "$ROOT/scripts/raven-skill-gate.py" ]]; then
+  python3 "$ROOT/scripts/raven-skill-gate.py" --event commit
+fi
+
+if [[ -f "$ROOT/.raven-framework" ]]; then
+  echo "Raven pre-commit: framework repo - app manifest check skipped"
+else
+  if [[ ! -f "$ROOT/.raven/manifest.json" ]]; then
+    echo "Raven pre-commit: BLOCKED - .raven/manifest.json missing" >&2
+    exit 1
+  fi
+fi
+
+if [[ -f "$ROOT/scripts/secret-scan.py" ]]; then
+  python3 "$ROOT/scripts/secret-scan.py"
+fi
+
+if [[ -f "$ROOT/scripts/pr-gate.py" && -f "$ROOT/.raven/manifest.json" ]]; then
+  python3 "$ROOT/scripts/pr-gate.py"
+fi

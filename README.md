@@ -35,11 +35,14 @@ Copy [`.github/workflows/raven-pr-gate.yml`](.github/workflows/raven-pr-gate.yml
 
 ### 3. Per-project setup
 
-```bash
-cd YourProject && raven-codex-setup
+Open Codex in your project and say:
+
+```text
+raven init
 ```
 
-Writes `.raven/manifest.json`, hook scripts, and the local git pre-commit gate.
+Raven will scan the repo, ask at most two questions, propose the manifest, then
+write `.raven/manifest.json`, `AGENTS.md`, and the local git pre-commit gate.
 
 ---
 

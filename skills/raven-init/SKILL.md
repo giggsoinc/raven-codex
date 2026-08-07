@@ -15,7 +15,8 @@ Replaces the legacy 7-step interactive wizard with an Andie-driven conversation.
 This skill is invoked by:
 1. **Andie Branch A onboarding** — fires automatically when no manifest exists and user confirms "OK to proceed".
 2. **Explicit `/raven init`** — user runs the command directly.
-3. **`andie init`** — user invokes Andie for setup.
+3. **Explicit `raven init`** — user types the phrase in Codex.
+4. **`andie init`** — user invokes Andie for setup.
 
 ---
 
@@ -119,6 +120,16 @@ Guards enabled: bash-ban-raw-tools · cbm-code-discovery-gate ·
 ```
 
 On accept → write `.raven/manifest.json` → validate → commit with audit trail.
+
+Also install the repo-level Codex contract and local commit gate:
+
+1. Write or update `AGENTS.md` with the Raven per-prompt gate and session boot
+   contract.
+2. Create `.raven/state/routing-policy.json` if it is missing.
+3. Install the git pre-commit hook so `raven-skill-gate.py --event commit` and
+   `secret-scan.py` run before commits.
+4. Never create a `codex` shell alias or PATH shim. Users open Codex normally
+   and bootstrap a repo by saying `raven init`.
 
 ---
 

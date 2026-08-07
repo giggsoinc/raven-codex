@@ -119,3 +119,4 @@ Reviewed during `/raven-harden` to promote permanent rules into CODEX.md and cur
 **Fix:** Added `cp core/scripts/*.py` and `cp core/scripts/*.sh` step to sr-02.
 **Principle:** The install script must be tested end-to-end against a clean project directory. Every file referenced in `settings.json` hooks must be verified present after install runs.
 **Status:** closed
+- 2026-08-07T15:01:19.957531+00:00 · raven-skill-gate · SOFT-WARN · event=commit files=- mode=soft

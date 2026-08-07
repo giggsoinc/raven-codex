@@ -1,0 +1,71 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/codex-session-start.py\"",
+            "statusMessage": "Loading Raven discipline",
+            "additionalContextLimit": 5000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/cve-prompt-guard.py\"",
+            "statusMessage": "Checking dependency intent",
+            "additionalContextLimit": 2000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/codex-pre-tool-discipline.py\"",
+            "timeout": 5,
+            "statusMessage": "Checking Raven command policy"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/schema-guard.py\"",
+            "timeout": 5,
+            "statusMessage": "Checking database safety"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/token-guard.py\"",
+            "timeout": 3,
+            "statusMessage": "Saving Raven compaction marker"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/codex-stop.py\"",
+            "timeout": 10,
+            "statusMessage": "Writing Raven session metrics"
+          }
+        ]
+      }
+    ]
+  }
+}

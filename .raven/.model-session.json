@@ -1,33 +1,43 @@
 {
-  "session_id": "",
-  "timestamp": "2026-06-11T01:26:45.630365Z",
-  "model": "unknown",
-  "raven_code": {
-    "tokens": 0,
-    "input": 0,
-    "output": 0,
-    "cache_read": 0,
-    "cache_creation": 0,
-    "cost_usd": 0.0,
-    "calls": 0
+  "session_started_at": "2026-08-07T11:41:36.633634Z",
+  "raven_overhead": {
+    "tokens": 137,
+    "cost_usd": 3.4e-05,
+    "calls": 2,
+    "by_source": {
+      "architect-router": {
+        "tokens": 80,
+        "calls": 1,
+        "cost_usd": 2e-05
+      },
+      "triage-router": {
+        "tokens": 57,
+        "calls": 1,
+        "cost_usd": 1.4e-05
+      }
+    }
   },
   "user_work": {
     "tokens": 0,
-    "input": 0,
-    "output": 0,
-    "cache_read": 0,
-    "cache_creation": 0,
     "cost_usd": 0.0,
-    "calls": 0
+    "calls": 2,
+    "tier_counts": {
+      "SIMPLE": 1,
+      "MEDIUM": 0,
+      "COMPLEX": 1,
+      "LOCAL_ONLY": 0
+    },
+    "last_classification": {
+      "timestamp": "2026-08-07T11:42:03.940712Z",
+      "user_query_hash": "ef84494a1757c869",
+      "tier": "COMPLEX",
+      "score": 6,
+      "reasons": [
+        "security_keyword:sql",
+        "architecture_keyword:architecture"
+      ],
+      "model_for_tier": "ollama/dolphin-mistral:latest"
+    }
   },
-  "tokens": 0,
-  "total": {
-    "tokens": 0,
-    "input": 0,
-    "output": 0,
-    "cache_read": 0,
-    "cache_creation": 0,
-    "cost_usd": 0.0,
-    "calls": 0
-  }
+  "providers": {}
 }
