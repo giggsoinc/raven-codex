@@ -120,3 +120,4 @@ Reviewed during `/raven-harden` to promote permanent rules into CODEX.md and cur
 **Principle:** The install script must be tested end-to-end against a clean project directory. Every file referenced in `settings.json` hooks must be verified present after install runs.
 **Status:** closed
 - 2026-08-07T15:01:19.957531+00:00 · raven-skill-gate · SOFT-WARN · event=commit files=- mode=soft
+- 2026-08-07T21:00:56.104446+00:00 · raven-skill-gate · SOFT-WARN · event=commit files=.codex-plugin/plugin.json,.githooks/pre-commit,.github/workflows/raven-pr-gate.yml,.gitignore,.raven/.model-session.json mode=soft
