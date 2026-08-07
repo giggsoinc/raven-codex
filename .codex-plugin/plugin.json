@@ -1,7 +1,7 @@
 {
   "name": "raven-codex",
   "displayName": "Raven — AI Coding Discipline",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "AI coding discipline for OpenAI Codex, GitHub Copilot, and Codex. 61 specialist skills, 10 guard agents, CVE scanning, secret detection, PR gates, audit logs. Andie v6.4 with one hard gate, GATES ledger, critic voice, mode splitting, 6 Kaizen methods, Guru, capability routing.",
   "shortDescription": "AI discipline — 61 specialists, 10 guards, CVE scan, secret detection, audit logs.",
   "longDescription": "Raven enforces engineering discipline on every task. CVE scanning on imported libraries, secret detection across changed files, manifest validation against your declared stack, and encrypted audit logs. 61 domain specialists covering ML, Graph DB, Workflow, MLOps, DB, cloud, security, K8s, Kafka, Terraform, Salesforce, Odoo, AI/ML, agent chaining, log management and more. 10 guard agents that fire when their conditions match. Andie v6.4 with one hard gate, GATES ledger, critic voice, mode splitting, 6 Kaizen methods, Guru explainer, capability routing, multi-platform model routing (OpenAI, Gemini, Perplexity, Manus). Posts visible status on every PR.",
@@ -20,6 +20,7 @@
   "systemPrompt": "Use Andie (skills/andie/SKILL.md) as the compact plan-first routing layer for complex work. Andie routes brownfield bugs, regressions, stack traces, and debug tasks to Andie Jr (skills/andie-jr/SKILL.md); routes security, unknown domains, tool selection, and implementation to the right Raven specialist; and hands off executable plans instead of doing implementation.",
   "defaultPrompt": "Load Andie to route and plan the work. If this is a brownfield bug or debug task, hand off to Andie Jr.",
   "privacy": "https://github.com/giggsoinc/raven-codex/blob/main/PRIVACY.md",
+  "hooks": "./hooks/hooks.json",
   "skills": [
     "./skills/andie/SKILL.md",
     "./skills/andie-jr/SKILL.md",

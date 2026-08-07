@@ -1,0 +1,755 @@
+#!/usr/bin/env python3
+"""
+Raven — SessionStart Hook
+Auto-discovers models, classifies project as brownfield or greenfield,
+and injects context into the session before the user types anything.
+
+Outputs JSON with additionalContext — consumed by Codex SessionStart hook.
+Never prompts interactively. Never reads .env or credential files.
+"""
+
+import json, os, re, subprocess, sys, urllib.request, urllib.error
+from pathlib import Path
+
+# ── Domain → Skill Map ────────────────────────────────────────────────────────
+# Maps detected project domain to the Raven specialist skill to invoke.
+#
+# Signal strength (v4.2 precision fix):
+#   STRONG — marker file, strong glob (domain-proprietary extension),
+#            dependency keyword, or two agreeing weak signals → mandatory banner.
+#   WEAK   — a single generic directory name → advisory hint only.
+# Strong matches anywhere in the map beat earlier weak matches (no shadowing —
+# this is the fix for the false-positive Oracle bug where a stray migration
+# .sql file branded a pure-Python project as Oracle).
+#
+# Schema: "keywords" (list) supersedes legacy "keyword" (string, still
+# accepted); "strong_globs": True marks globs as domain-proprietary.
+
+DOMAIN_SKILL_MAP = [
+    # Salesforce — unambiguous marker files
+    {
+        "name":    "Salesforce",
+        "skill":   "raven:salesforce-specialist",
+        "markers": ["sfdx-project.json", ".forceignore"],
+        "dirs":    ["force-app"],
+        "globs":   [],
+    },
+    # Odoo — __manifest__.py is the canonical Odoo module marker
+    {
+        "name":    "Odoo",
+        "skill":   "raven:odoo-specialist",
+        "markers": ["odoo.conf", ".odoo_upgrade.json"],
+        "dirs":    [],
+        "globs":   ["**/__manifest__.py"],  # checked with limit
+        "strong_globs": True,  # __manifest__.py is Odoo-proprietary
+    },
+    # Terraform
+    {
+        "name":    "Terraform",
+        "skill":   "raven:terraform-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   ["*.tf", "**/*.tf"],
+        "strong_globs": True,  # .tf is Terraform-proprietary
+    },
+    # Kubernetes / Helm — Chart.yaml is the real Helm marker; "charts" dir
+    # removed (matched JS charting/asset folders). Generic dirs are WEAK.
+    {
+        "name":    "Kubernetes",
+        "skill":   "raven:k8s-specialist",
+        "markers": ["Chart.yaml"],
+        "dirs":    ["k8s", "kubernetes", "helm"],
+        "globs":   [],
+    },
+    # Kafka — check requirements or docker-compose
+    {
+        "name":    "Kafka",
+        "skill":   "raven:kafka-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   [],
+        "keyword_files": ["requirements.txt", "docker-compose.yml", "pyproject.toml"],
+        "keyword":       "kafka",
+    },
+    # Oracle — APEX / DB. NO .sql glob: a stray migration/SQLite-schema/test
+    # fixture .sql file is NOT an Oracle signal. .pkb/.pks are genuinely
+    # Oracle PL/SQL (strong).
+    {
+        "name":    "Oracle",
+        "skill":   "raven:oracle-db-specialist",
+        "markers": ["tnsnames.ora"],
+        "dirs":    [],
+        "globs":   ["**/*.pkb", "**/*.pks"],
+        "strong_globs": True,
+        "keyword_files": ["requirements.txt", "pyproject.toml"],
+        "keywords":      ["cx_Oracle", "oracledb"],
+    },
+    # AWS / Cloud — template.yaml is too generic a filename; require AWS::
+    # content instead.
+    {
+        "name":    "AWS",
+        "skill":   "raven:aws-specialist",
+        "markers": ["cdk.json", "serverless.yml", "serverless.yaml", "sam.yaml"],
+        "dirs":    [],
+        "globs":   [],
+        "keyword_files": ["template.yaml", "template.yml"],
+        "keywords":      ["AWS::"],
+    },
+    # FastAPI / Python web
+    {
+        "name":    "FastAPI",
+        "skill":   "raven:fastapi-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   [],
+        "keyword_files": ["requirements.txt", "pyproject.toml"],
+        "keyword":       "fastapi",
+    },
+]
+
+
+def _entry_signals(cwd: Path, entry: dict) -> tuple[int, int]:
+    """Count (strong, weak) signals for one map entry."""
+    strong, weak = 0, 0
+    # Marker files — strong
+    for marker in entry.get("markers", []):
+        if (cwd / marker).exists():
+            strong += 1
+    # Marker directories — weak (generic names like k8s/ can be anything)
+    for d in entry.get("dirs", []):
+        if (cwd / d).is_dir():
+            weak += 1
+    # Glob patterns (with a hard limit to stay fast) — strong only when the
+    # extension is domain-proprietary ("strong_globs": True), else weak
+    glob_hit = False
+    for pattern in entry.get("globs", []):
+        try:
+            if next(iter(cwd.glob(pattern)), None):
+                glob_hit = True
+                break
+        except Exception:
+            pass
+    if glob_hit:
+        if entry.get("strong_globs"):
+            strong += 1
+        else:
+            weak += 1
+    # Dependency keywords in specific files — strong.
+    # "keywords" (list) supersedes legacy "keyword" (string).
+    keywords = entry.get("keywords") or ([entry["keyword"]] if entry.get("keyword") else [])
+    if keywords:
+        for kf in entry.get("keyword_files", []):
+            kf_path = cwd / kf
+            if kf_path.exists():
+                try:
+                    text = kf_path.read_text(errors="ignore").lower()
+                    if any(kw.lower() in text for kw in keywords):
+                        strong += 1
+                        break
+                except Exception:
+                    pass
+    return strong, weak
+
+
+def detect_domain(cwd: Path) -> tuple[str | None, str | None, str | None]:
+    """Detect the project's primary domain.
+
+    Returns (skill, label, strength) where strength is "strong" or "weak",
+    or (None, None, None).
+
+    "strong" = marker file, strong glob, dependency keyword, OR two agreeing
+    weak signals. "weak" = a single generic-dir hit. A strong match anywhere
+    in the map beats an earlier weak match (no first-match-wins shadowing).
+    """
+    weak_match: tuple[str, str] | None = None
+    for entry in DOMAIN_SKILL_MAP:
+        strong, weak = _entry_signals(cwd, entry)
+        if strong >= 1 or weak >= 2:
+            return entry["skill"], entry["name"], "strong"
+        if weak == 1 and weak_match is None:
+            weak_match = (entry["skill"], entry["name"])
+    if weak_match:
+        return weak_match[0], weak_match[1], "weak"
+    return None, None, None
+
+
+# ── Brownfield / Greenfield Detection ─────────────────────────────────────────
+
+def detect_project_type() -> dict:
+    signals = []
+    project_type = "greenfield"
+    confidence = "LOW"
+
+    cwd = Path(".")
+
+    # Git history depth
+    try:
+        result = subprocess.run(
+            ["git", "rev-list", "--count", "HEAD"],
+            capture_output=True, text=True, timeout=5
+        )
+        commit_count = int(result.stdout.strip()) if result.returncode == 0 else 0
+        if commit_count > 50:
+            signals.append(f"git: {commit_count} commits")
+            project_type = "brownfield"
+            confidence = "HIGH"
+        elif commit_count > 5:
+            signals.append(f"git: {commit_count} commits")
+            project_type = "brownfield"
+            confidence = "MEDIUM"
+        elif commit_count > 0:
+            signals.append(f"git: {commit_count} commits (new repo)")
+    except Exception:
+        signals.append("git: no repo detected")
+
+    # Raven manifest
+    if (cwd / ".raven" / "manifest.json").exists():
+        signals.append("raven: manifest present")
+        project_type = "brownfield"
+        confidence = "HIGH"
+
+    # Language / framework signals
+    lang_signals = {
+        "package.json":      "Node.js",
+        "requirements.txt":  "Python",
+        "pyproject.toml":    "Python",
+        "Cargo.toml":        "Rust",
+        "go.mod":            "Go",
+        "pom.xml":           "Java/Maven",
+        "build.gradle":      "Java/Gradle",
+        "Gemfile":           "Ruby",
+        "composer.json":     "PHP",
+        "pubspec.yaml":      "Dart/Flutter",
+    }
+    detected_langs = []
+    for file, lang in lang_signals.items():
+        if (cwd / file).exists():
+            detected_langs.append(lang)
+
+    if detected_langs:
+        signals.append(f"stack: {', '.join(detected_langs[:3])}")
+        if project_type == "greenfield":
+            project_type = "brownfield"
+            confidence = "MEDIUM"
+
+    # File count (rough proxy for existing codebase)
+    try:
+        src_extensions = {".py", ".ts", ".js", ".tsx", ".jsx", ".go", ".rs", ".java", ".rb", ".cs"}
+        src_files = [
+            f for f in cwd.rglob("*")
+            if f.suffix in src_extensions
+            and ".git" not in f.parts
+            and "node_modules" not in f.parts
+            and "__pycache__" not in f.parts
+        ]
+        file_count = len(src_files)
+        if file_count > 100:
+            signals.append(f"codebase: {file_count} source files")
+            project_type = "brownfield"
+            confidence = "HIGH"
+        elif file_count > 10:
+            signals.append(f"codebase: {file_count} source files")
+        elif file_count > 0:
+            signals.append(f"codebase: {file_count} source file(s)")
+    except Exception:
+        pass
+
+    # Infrastructure signals
+    infra_signals = {
+        "terraform": "Terraform",
+        ".github/workflows": "GitHub Actions",
+        "Dockerfile": "Docker",
+        "docker-compose.yml": "Docker Compose",
+        "kubernetes": "Kubernetes",
+        "helm": "Helm",
+    }
+    detected_infra = []
+    for path, label in infra_signals.items():
+        if (cwd / path).exists():
+            detected_infra.append(label)
+    if detected_infra:
+        signals.append(f"infra: {', '.join(detected_infra[:3])}")
+
+    return {
+        "type":       project_type,
+        "confidence": confidence,
+        "signals":    signals,
+        "langs":      detected_langs,
+    }
+
+
+# ── Model Discovery ────────────────────────────────────────────────────────────
+
+EMBEDDING_MODEL_RE = re.compile(r"(embed|minilm|bge-|e5-|reranker)", re.IGNORECASE)
+PREMIUM_MODEL_RE = re.compile(r"(?:^|/)(o1|o3|opus|gpt-4\.5|gpt-5-pro)(?:$|[-:])", re.IGNORECASE)
+LOCAL_PROVIDER_NAMES = {"ollama", "lmstudio", "local", "llamacpp", "vllm"}
+SAFE_COMPLEX_DEFAULT = "openai/gpt-4o"
+
+CLOUD_PROVIDERS = {
+    "openai": {
+        "env_keys": ["OPENAI_API_KEY"],
+        "models":   ["gpt-4o-mini", "gpt-4o"],
+        "tiers":    {"gpt-4o-mini": "low", "gpt-4o": "medium"},
+    },
+    "groq": {
+        "env_keys": ["GROQ_API_KEY"],
+        "models":   ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"],
+        "tiers":    {"llama-3.1-8b-instant": "low", "llama-3.3-70b-versatile": "low"},
+    },
+    "gemini": {
+        "env_keys": ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
+        "models":   ["gemini-2.0-flash", "gemini-1.5-pro"],
+        "tiers":    {"gemini-2.0-flash": "low", "gemini-1.5-pro": "medium"},
+    },
+    "together": {
+        "env_keys": ["TOGETHER_API_KEY"],
+        "models":   ["meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"],
+        "tiers":    {"meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo": "low"},
+    },
+}
+
+LOCAL_PROVIDERS = {
+    "ollama":   "http://localhost:11434/api/tags",
+    "lmstudio": "http://localhost:1234/v1/models",
+}
+
+
+def is_chat_capable_model(model: str) -> bool:
+    """Reject embedding/reranker models from chat routing."""
+    return not bool(EMBEDDING_MODEL_RE.search(model or ""))
+
+
+def is_premium_model(model: str) -> bool:
+    """True for models that require explicit opt-in before routing."""
+    return bool(PREMIUM_MODEL_RE.search(model or ""))
+
+
+def premium_opt_in_enabled() -> bool:
+    """Explicit premium routing opt-in."""
+    return os.environ.get("RAVEN_ALLOW_PREMIUM_MODEL", "").lower() in {"1", "true", "yes"}
+
+
+def filter_provider_models(provider: dict) -> dict:
+    """Remove non-chat and non-opted-in premium models from a provider."""
+    allow_premium = premium_opt_in_enabled()
+    models = [
+        m for m in provider.get("models", [])
+        if is_chat_capable_model(m) and (allow_premium or not is_premium_model(m))
+    ]
+    tiers = {m: provider.get("tiers", {}).get(m, "low") for m in models}
+    return {**provider, "models": models, "tiers": tiers}
+
+
+def discover_cloud() -> list[dict]:
+    found = []
+    for name, cfg in CLOUD_PROVIDERS.items():
+        key = next((os.environ.get(k) for k in cfg["env_keys"] if os.environ.get(k)), None)
+        if key:
+            provider = filter_provider_models({
+                "provider": name,
+                "models":   cfg["models"],
+                "tiers":    cfg["tiers"],
+                "source":   "env",
+            })
+            if provider["models"]:
+                found.append(provider)
+    return found
+
+
+def discover_local() -> list[dict]:
+    found = []
+    for name, endpoint in LOCAL_PROVIDERS.items():
+        try:
+            req = urllib.request.Request(endpoint, headers={"Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                data = json.loads(resp.read())
+            models = []
+            if name == "ollama":
+                models = [m["name"] for m in data.get("models", [])]
+            elif name == "lmstudio":
+                models = [m["id"] for m in data.get("data", [])]
+            if models:
+                provider = filter_provider_models({
+                    "provider": name,
+                    "models":   models,
+                    "tiers":    {m: "free" for m in models},
+                    "source":   "local",
+                })
+                if provider["models"]:
+                    found.append(provider)
+        except Exception:
+            pass
+    return found
+
+
+def build_routing(providers: list[dict]) -> dict:
+    free    = [(p["provider"], m) for p in providers for m, t in p["tiers"].items() if t == "free"]
+    low     = [(p["provider"], m) for p in providers for m, t in p["tiers"].items() if t == "low"]
+    medium  = [(p["provider"], m) for p in providers for m, t in p["tiers"].items() if t == "medium"]
+    high    = [(p["provider"], m) for p in providers for m, t in p["tiers"].items() if t == "high"]
+
+    def pick(lst, fallback=None):
+        return lst[0] if lst else fallback
+
+    local_pick   = pick(free)
+    simple_pick  = pick(low,    local_pick)
+    medium_pick  = pick(medium, simple_pick)
+    complex_pick = pick(high,   medium_pick)
+
+    def fmt(t, fallback=SAFE_COMPLEX_DEFAULT):
+        return f"{t[0]}/{t[1]}" if t else fallback
+
+    routing = {
+        "LOCAL_ONLY": fmt(local_pick, "ollama/dolphin-mistral"),
+        "SIMPLE":     fmt(simple_pick),
+        "MEDIUM":     fmt(medium_pick),
+        "COMPLEX":    fmt(complex_pick if not (complex_pick and is_premium_model(complex_pick[1]) and not premium_opt_in_enabled()) else medium_pick),
+    }
+    ok, problems = validate_routing(routing)
+    if not ok:
+        routing["COMPLEX"] = SAFE_COMPLEX_DEFAULT
+    return routing
+
+
+def validate_routing(routing: dict) -> tuple[bool, list[str]]:
+    """Validate generated routing table."""
+    problems = []
+    allow_premium = premium_opt_in_enabled()
+    for tier in ("LOCAL_ONLY", "SIMPLE", "MEDIUM", "COMPLEX"):
+        model = routing.get(tier, "")
+        provider = model.split("/", 1)[0].lower() if "/" in model else ""
+        name = model.split("/", 1)[1] if "/" in model else model
+        if not model:
+            problems.append(f"{tier}: missing model")
+        if not is_chat_capable_model(name):
+            problems.append(f"{tier}: {model} is embedding/reranker, not chat")
+        if tier == "LOCAL_ONLY" and provider and provider not in LOCAL_PROVIDER_NAMES:
+            problems.append(f"{tier}: {model} is not local")
+        if tier != "LOCAL_ONLY" and is_premium_model(name) and not allow_premium:
+            problems.append(f"{tier}: {model} requires explicit premium opt-in")
+    return not problems, problems
+
+
+def write_model_env(providers: list[dict], routing: dict):
+    model_env = Path(".model.env")
+    lines = [
+        "# Raven — Model Capabilities",
+        "# Auto-generated by session-start.py — safe to commit (no secrets)",
+        "# Edit manually to override routing decisions",
+        "",
+        "[routing]",
+        f"LOCAL_ONLY = {routing['LOCAL_ONLY']}",
+        f"SIMPLE     = {routing['SIMPLE']}",
+        f"MEDIUM     = {routing['MEDIUM']}",
+        f"COMPLEX    = {routing['COMPLEX']}",
+        "",
+    ]
+    for p in providers:
+        lines.append(f"[{p['provider']}]")
+        lines.append("available = true")
+        lines.append(f"source    = {p['source']}")
+        lines.append(f"models    = {', '.join(p['models'][:5])}")
+        for model, tier in list(p["tiers"].items())[:5]:
+            lines.append(f"tier.{model} = {tier}")
+        lines.append("")
+
+    model_env.write_text("\n".join(lines))
+
+    # Ensure gitignored
+    gitignore = Path(".gitignore")
+    if gitignore.exists():
+        content = gitignore.read_text()
+        if ".model.env" not in content:
+            gitignore.write_text(content.rstrip() + "\n.model.env\n")
+
+
+def _gate_mode() -> str | None:
+    """Read the skill-routing gate mode for the banner. None when no policy
+    exists (gate not installed in this project)."""
+    policy_path = Path(".raven/state/routing-policy.json")
+    if not policy_path.exists():
+        return None
+    try:
+        from datetime import datetime, timezone
+        policy = json.loads(policy_path.read_text())
+        mode = policy.get("mode", "soft")
+        soft_until = policy.get("soft_until")
+        if mode == "soft" and soft_until:
+            if datetime.now(timezone.utc) > datetime.fromisoformat(soft_until):
+                mode = "hard"
+        return mode
+    except Exception:
+        return None
+
+
+# ── Format output ──────────────────────────────────────────────────────────────
+
+def format_context(
+    project: dict,
+    providers: list[dict],
+    routing: dict,
+    model_env_written: bool,
+    domain_skill: tuple = (None, None, None),
+    routing_validation: tuple[bool, list[str]] = (True, []),
+    active_model: str = "unknown",
+) -> str:
+    lines = []
+
+    # Project classification
+    badge = "🟤 BROWNFIELD" if project["type"] == "brownfield" else "🟢 GREENFIELD"
+    lines.append(f"{badge}  [{project['confidence']} confidence]")
+    if project["signals"]:
+        lines.append("  Signals: " + " · ".join(project["signals"]))
+
+    lines.append("")
+
+    # Model landscape
+    if providers:
+        local_p  = [p for p in providers if p["source"] == "local"]
+        cloud_p  = [p for p in providers if p["source"] == "env"]
+
+        if local_p:
+            lines.append(f"⚡ LOCAL: " + ", ".join(
+                f"{p['provider']} ({len(p['models'])} model{'s' if len(p['models'])!=1 else ''})"
+                for p in local_p
+            ))
+        if cloud_p:
+            lines.append(f"☁️  CLOUD: " + ", ".join(p["provider"] for p in cloud_p))
+
+        lines.append("")
+        lines.append("Model routing:")
+        lines.append(f"  LOCAL_ONLY → {routing['LOCAL_ONLY']}")
+        lines.append(f"  SIMPLE     → {routing['SIMPLE']}")
+        lines.append(f"  MEDIUM     → {routing['MEDIUM']}")
+        lines.append(f"  COMPLEX    → {routing['COMPLEX']}")
+        ok, problems = routing_validation
+        lines.append(f"  Validation → {'PASS' if ok else 'FAIL'}")
+        for problem in problems[:4]:
+            lines.append(f"    - {problem}")
+        lines.append("  Limits     → Raven can advise and validate routing; Codex keeps the active session model unless the host exposes model switching.")
+        lines.append("  Premium    → never auto-selected unless RAVEN_ALLOW_PREMIUM_MODEL=true.")
+        lines.append(f"  Active     → {active_model}")
+
+        if model_env_written:
+            lines.append("  .model.env written ✓")
+
+        # ── 💰 Cost meter — show prior session spend if available ──────────────
+        try:
+            session_file = Path(".raven/.model-session.json")
+            if session_file.exists():
+                session_data = json.loads(session_file.read_text())
+                tok = session_data.get("session_tokens", 0)
+                cost = session_data.get("session_cost_usd", 0.0)
+                tier_breakdown = session_data.get("tier_counts", {})
+                if tok > 0:
+                    lines.append("")
+                    lines.append(f"💰 Last session: ~{tok:,} tok · ~${cost:.3f}")
+                    if tier_breakdown:
+                        breakdown = " · ".join(f"{k}:{v}" for k, v in tier_breakdown.items() if v > 0)
+                        lines.append(f"   Tiers used: {breakdown}")
+        except Exception:
+            pass  # Cost meter is best-effort, never blocks session start
+    else:
+        lines.append("☁️  No additional model providers detected.")
+        lines.append(f"   Codex active model: {active_model}.")
+        lines.append(f"   Active     → {active_model}")
+        lines.append("   Raven can advise routing but cannot silently switch the active Codex model.")
+        ok, problems = routing_validation
+        lines.append(f"   Validation → {'PASS' if ok else 'FAIL'}")
+        for problem in problems[:4]:
+            lines.append(f"     - {problem}")
+        lines.append("   Premium models are never auto-selected unless RAVEN_ALLOW_PREMIUM_MODEL=true.")
+        lines.append("   To add: set OPENAI_API_KEY, GROQ_API_KEY, or start Ollama.")
+
+    # Brownfield advisory + domain skill trigger
+    cwd = Path(".")
+    has_manifest  = (cwd / ".raven" / "manifest.json").exists()
+    has_agents_md = (cwd / "AGENTS.md").exists() or (cwd / "CODEX.md").exists()
+
+    # Dashboard context (optional — only if it exists and manifest is present)
+    if has_manifest:
+        dashboard_file = Path.home() / "RavenVault" / "dashboard.html"
+        session_json = cwd / ".raven" / ".model-session.json"
+        if dashboard_file.exists():
+            lines.append("")
+            lines.append("📊 Usage Dashboard")
+            try:
+                # Try to read last 30 days from monthly metrics
+                import datetime as dt
+                metrics_dir = Path.home() / "RavenVault" / ".metrics"
+                if metrics_dir.exists():
+                    month_key = dt.datetime.now().strftime("%Y-%m")
+                    month_file = metrics_dir / f"{month_key}.json"
+                    if month_file.exists():
+                        month_data = json.loads(month_file.read_text())
+                        sessions = month_data.get("sessions", 0)
+                        tokens = month_data.get("total", {}).get("tokens", 0)
+                        cost = month_data.get("total", {}).get("cost_usd", 0)
+                        if sessions > 0:
+                            lines.append(f"   This month: {sessions} session(s) · {tokens:,} tokens · ${cost:.2f}")
+            except Exception:
+                pass
+            lines.append(f"   📈 Open: {dashboard_file}")
+            lines.append("      Refresh: `raven dashboard --refresh`")
+
+    # ── MANDATORY GREETING — fires for BOTH greenfield and brownfield ──────────
+    # First message after install ALWAYS shows the Welcome greeting before any routing.
+    # This is hook-enforced, not description-based. Codex cannot skip.
+    lines.append("")
+    lines.append("━━━ [GREETING REQUIRED] — MANDATORY FIRST RESPONSE ━━━")
+    lines.append("On the FIRST user message of this session, Codex MUST respond")
+    lines.append("with the EXACT greeting below — no other text, no analysis, no routing yet:")
+    lines.append("")
+    lines.append('    "Welcome to Raven — your Enterprise Discipline for AI-based Vibe Coding.')
+    lines.append("")
+    lines.append('     Do you want me to tell you what I can do, or just say — Let\'s Go!"')
+    lines.append("")
+    lines.append("After user responds:")
+    lines.append("  ├─ If user asks 'what can you do' / curious / capabilities:")
+    lines.append("  │     → Brief 50-word capability summary covering:")
+    lines.append("  │       Andie (planning) · Andie-jr (debug) · 60+ specialists ·")
+    lines.append("  │       cost-aware routing · CVE + secret guards · Obsidian memory.")
+    lines.append("  │     → End with: 'Ready? Say Let\\'s Go.'")
+    lines.append("  │")
+    lines.append("  └─ If user says 'Let\\'s Go' / 'go' / states a task:")
+    if not has_manifest:
+        lines.append("       → GREENFIELD path: AUTO-INVOKE `andie` skill.")
+        lines.append("         Andie's Branch A onboarding fires with this exact greeting:")
+        lines.append("           '👋 Hey, I\\'m Andie. I\\'m the mind of your installed Raven.")
+        lines.append("            Good — you have a keen ask for responsible and resilient AI.")
+        lines.append("            I noticed you don\\'t have a manifest yet — to get Raven working,")
+        lines.append("            I need to scan your project and build one. OK to proceed?'")
+        lines.append("         On YES → Andie scans, asks ≤2 questions, hands off to raven-init.")
+    else:
+        lines.append("       → BROWNFIELD path: manifest.json ✅ present. Load it, trust stack.")
+        lines.append("         Then route by prompt class:")
+        lines.append("           [symptom]      → triage-router → andie-jr")
+        lines.append("           [architecture] → architect-router → andie")
+        skill, domain_label, strength = domain_skill
+        if skill and strength == "strong":
+            lines.append(f"           [domain task]  → {skill} ({domain_label})")
+        elif skill:
+            lines.append(f"           [domain task]  → consider {skill} ({domain_label}, weak signal)")
+        else:
+            lines.append("           [domain task]  → matching specialist (see manifest.stack)")
+    lines.append("")
+    gate_mode = _gate_mode()
+    if gate_mode:
+        lines.append(f"🚧 Skill routing is enforced at commit time by raven-skill-gate (mode: {gate_mode}).")
+        lines.append("   Commits to code files are blocked (hard) or warned (soft) until a")
+        lines.append("   specialist marker exists — gated skills record one as their first step.")
+        lines.append("   Honest scope: the gate guarantees the skill RAN, not that its output was used well.")
+        lines.append("")
+    lines.append("DO NOT skip the greeting. DO NOT route before greeting. DO NOT give")
+    lines.append("install instructions — Raven IS installed.")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("")
+
+    # ── Brownfield-specific advisory (after greeting context) ─────────────────
+    if project["type"] == "brownfield":
+        lines.append("📋 Existing project — Raven IS installed and active.")
+        if project["langs"]:
+            lines.append(f"   Stack: {', '.join(project['langs'])}")
+        skill, domain_label, strength = domain_skill
+        if skill and strength == "strong":
+            lines.append("")
+            lines.append(f"⚡ DOMAIN DETECTED: {domain_label}")
+            lines.append(f"   After greeting + Let's Go: invoke `{skill}` for domain tasks.")
+        elif skill:  # weak — advisory only, never mandatory
+            lines.append("")
+            lines.append(f"💡 DOMAIN HINT: {domain_label} (weak signal — directory name only)")
+            lines.append(f"   Consider `{skill}` only if the task is {domain_label}-related. Not mandatory.")
+    else:
+        lines.append("🚀 New project — manifest will be created via Andie's Branch A on Let's Go.")
+
+    return "\n".join(lines)
+
+
+# ── Main ───────────────────────────────────────────────────────────────────────
+
+def main():
+    # SessionStart hook — read stdin (may be empty or contain session info)
+    try:
+        hook_input = json.load(sys.stdin)
+    except Exception:
+        hook_input = {}
+
+    # 1. Detect project type
+    project = detect_project_type()
+
+    # 2. Detect domain → skill mapping
+    domain_skill = detect_domain(Path("."))
+
+    # 3. Discover models
+    local_providers = discover_local()
+    cloud_providers = discover_cloud()
+    all_providers   = local_providers + cloud_providers
+
+    # 4. Build routing table
+    routing = build_routing(all_providers)
+    routing_validation = validate_routing(routing)
+    active_model = (
+        hook_input.get("model")
+        or hook_input.get("active_model")
+        or hook_input.get("activeModel")
+        or os.environ.get("CODEX_MODEL")
+        or os.environ.get("OPENAI_MODEL")
+        or "host-controlled Codex model"
+    )
+
+    # 5. Write .model.env if missing or if local providers newly found
+    model_env = Path(".model.env")
+    model_env_written = False
+    if not model_env.exists() and all_providers:
+        try:
+            write_model_env(all_providers, routing)
+            model_env_written = True
+        except Exception:
+            pass  # Non-critical — session continues regardless
+
+    # 6. Format context string
+    context = format_context(
+        project,
+        all_providers,
+        routing,
+        model_env_written,
+        domain_skill,
+        routing_validation,
+        str(active_model),
+    )
+
+    # 6. Build compact system notification (always shown in Codex UI)
+    badge_short = "BROWNFIELD" if project["type"] == "brownfield" else "GREENFIELD"
+    skill, domain_label, strength = domain_skill
+    if skill and strength == "strong":
+        skill_line = f" · {domain_label} → {skill}"
+    elif skill:
+        skill_line = f" · {domain_label}? (weak)"
+    else:
+        skill_line = ""
+    lang_short = ", ".join(project["langs"][:2]) if project["langs"] else ""
+    stack_line = f" · {lang_short}" if lang_short else ""
+
+    providers_short = ""
+    local_p = [p for p in all_providers if p["source"] == "local"]
+    cloud_p = [p for p in all_providers if p["source"] == "env"]
+    if local_p:
+        providers_short += " · " + ", ".join(f"{p['provider']}" for p in local_p)
+    if cloud_p:
+        providers_short += " · " + ", ".join(p["provider"] for p in cloud_p)
+
+    system_message = f"Raven ✅  {badge_short}{stack_line}{skill_line}{providers_short}"
+
+    # 7. Output JSON for SessionStart hook
+    output = {
+        "systemMessage": system_message,
+        "hookSpecificOutput": {
+            "hookEventName":   "SessionStart",
+            "additionalContext": context,
+        }
+    }
+    print(json.dumps(output))
+
+
+if __name__ == "__main__":
+    main()

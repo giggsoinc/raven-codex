@@ -1,0 +1,65 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "commands": [
+          {
+            "script": "session-start.py",
+            "statusMessage": "Loading Raven discipline",
+            "additionalContextLimit": 5000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "commands": [
+          {
+            "script": "cve-prompt-guard.py",
+            "statusMessage": "Checking dependency intent",
+            "additionalContextLimit": 2000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "commands": [
+          {
+            "script": "pre-tool-discipline.py",
+            "timeout": 5,
+            "statusMessage": "Checking Raven command policy"
+          },
+          {
+            "script": "schema-guard.py",
+            "timeout": 5,
+            "statusMessage": "Checking database safety"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "commands": [
+          {
+            "script": "token-guard.py",
+            "timeout": 3,
+            "statusMessage": "Saving Raven compaction marker"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "commands": [
+          {
+            "script": "stop.py",
+            "timeout": 10,
+            "statusMessage": "Writing Raven session metrics"
+          }
+        ]
+      }
+    ]
+  }
+}

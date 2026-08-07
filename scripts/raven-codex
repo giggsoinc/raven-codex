@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+GATE_FILE="$ROOT/.raven/state/codex-gate-instructions.md"
+
+mkdir -p "$ROOT/.raven/state"
+
+cat > "$GATE_FILE" <<'EOF'
+RAVEN GATE (non-negotiable, applies to every prompt in every session):
+1. Before generating any response, apply Raven Core routing (Step 0):
+   classify the prompt and route through the matching Raven skill.
+2. Every response MUST begin with exactly one protocol line:
+   "Raven: routed -> <skill>"  or
+   "Raven: passive (<one-line reason>)"  or
+   "Raven: blocked -> <rule violated>"
+   A response without this line is a defect.
+3. If .raven/manifest.json exists in the repo, Raven is ACTIVE there.
+   Never treat Raven as review-only or triggered-only.
+
+Session-start self-check:
+Read .raven/manifest.json before responding. The first assistant response in
+this repo must start with the Raven boot line, followed by the Raven protocol
+line.
+EOF
+
+if [[ -f "$ROOT/.raven/manifest.json" ]]; then
+  PROJECT="$(python3 -c 'import json; print(json.load(open(".raven/manifest.json")).get("project", "unknown"))' 2>/dev/null || printf unknown)"
+  STACK="$(python3 -c 'import json; d=json.load(open(".raven/manifest.json")); s=d.get("stack", "unknown"); print(s.get("work_type") or s.get("language") or s if isinstance(s, dict) else s)' 2>/dev/null || printf unknown)"
+  printf 'Raven boot: manifest OK | gate ACTIVE | %s | %s\n' "$PROJECT" "$STACK"
+else
+  printf 'Raven boot: NO MANIFEST - guide setup, do not hard-stop.\n'
+fi
+
+cd "$ROOT"
+exec codex -c "developer_instructions=$(<"$GATE_FILE")" "$@"

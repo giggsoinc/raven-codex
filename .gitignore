@@ -1,5 +1,10 @@
 .raven/.env
 .raven/audit/
+.raven/.cost-verify.json
+.raven/.model-session.json
+.raven/.token-meter-checkpoint.json
+.raven/cost-log.jsonl
+.raven/state/
 .DS_Store
 __pycache__/
 *.pyc

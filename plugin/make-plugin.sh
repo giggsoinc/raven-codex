@@ -18,6 +18,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 VERSION="4.1.0"
+if [[ -f "$REPO_DIR/VERSION" ]]; then
+    VERSION="$(tr -d '[:space:]' < "$REPO_DIR/VERSION")"
+fi
 ZIP_NAME="raven-codex-plugin-v${VERSION}.zip"
 ZIP_PATH="$SCRIPT_DIR/$ZIP_NAME"
 TMP_DIR="$(mktemp -d)"
@@ -50,6 +53,13 @@ echo "  ✅ $AGENT_COUNT agents"
 # Cost-aware routing + guards. NO Hub. NO MCP governance. NO telemetry.
 mkdir -p "$TMP_DIR/scripts"
 for script in \
+    codex-pre-tool-discipline.py \
+    codex-stop.py \
+    codex-session-start.py \
+    codex-model-router.py \
+    codex-token-meter-write.py \
+    codex-dashboard.py \
+    codex-raven-xray.py \
     session-start.py \
     triage-router.py \
     architect-router.py \
@@ -59,8 +69,10 @@ for script in \
     log-overhead.py \
     model-router.py \
     token-guard.py \
+    token-meter-write.py \
     obsidian-log.py \
     cve-prompt-guard.py \
+    schema-guard.py \
     cve-check.py \
     secret-scan.py \
     audit-log.py \
@@ -76,7 +88,7 @@ for script in \
     fi
 done
 
-# ── MCP server (the only enforcement channel Codex respects) ──
+# ── MCP server ──
 mkdir -p "$TMP_DIR/mcp"
 if [[ -f "$REPO_DIR/mcp/server.py" ]]; then
     cp "$REPO_DIR/mcp/server.py" "$TMP_DIR/mcp/server.py"
@@ -103,6 +115,19 @@ if [[ -f "$REPO_DIR/config.toml.example" ]]; then
     cp "$REPO_DIR/config.toml.example" "$TMP_DIR/config.toml.example"
     echo "  ✅ config.toml.example (Codex CLI)"
 fi
+
+# Codex lifecycle hooks
+python3 "$REPO_DIR/scripts/generate-codex-hooks.py" --check
+if [[ -d "$REPO_DIR/hooks" ]]; then
+    mkdir -p "$TMP_DIR/hooks"
+    cp -R "$REPO_DIR/hooks/." "$TMP_DIR/hooks/"
+    echo "  ✅ hooks/"
+else
+    echo "  ⚠️  hooks/ — not found, skipping"
+fi
+
+python3 "$REPO_DIR/scripts/check-codex-boundary.py" --root "$REPO_DIR" --bundle "$TMP_DIR"
+echo "  ✅ Codex hook boundary"
 
 # ── Docs (gate contract + tokenomics + architecture pages) ──
 mkdir -p "$TMP_DIR/docs"
@@ -160,6 +185,7 @@ echo "  📏 Size:  $SIZE"
 echo ""
 echo "  🔍 Validating..."
 python3 -c "import json; json.load(open('$TMP_DIR/.codex-plugin/plugin.json'))" && echo "  ✅ plugin.json valid JSON"
+python3 "$REPO_DIR/scripts/check-codex-boundary.py" --root "$REPO_DIR" --bundle "$TMP_DIR" >/dev/null && echo "  ✅ Codex hook targets present"
 echo "  ✅ $SKILL_COUNT skills at ZIP root"
 echo "  ✅ $AGENT_COUNT agents at ZIP root"
 SCRIPT_COUNT=$(find "$TMP_DIR/scripts" -name "*.py" | wc -l | tr -d ' ')
